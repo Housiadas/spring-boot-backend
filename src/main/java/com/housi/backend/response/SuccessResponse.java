@@ -4,18 +4,18 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class DataResponse<T> {
+public class SuccessResponse<T> {
 
     private List<T> data = List.of();
     private MetadataResponse metadata;
 
-    public DataResponse() {}
+    public SuccessResponse() {}
 
-    public DataResponse(List<T> data) {
+    public SuccessResponse(List<T> data) {
         this.data = data;
     }
 
-    public DataResponse(List<T> data, Integer page, Integer size, Long totalSize) {
+    public SuccessResponse(List<T> data, Integer page, Integer size, Long totalSize) {
         this.data = data;
         this.metadata = new MetadataResponse(page, size, totalSize);
     }

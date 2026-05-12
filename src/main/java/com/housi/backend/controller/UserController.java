@@ -2,6 +2,7 @@ package com.housi.backend.controller;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.request.UserRequest;
+import com.housi.backend.response.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("users")
-public class UserController {
+public class UserController extends BaseController {
 
     private final List<User> users = new ArrayList<>();
 
@@ -24,13 +25,15 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Retrieve a list of all users")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
-    public List<User> getUsers(
+    public SuccessResponse<User> getUsers(
             @Parameter(description = "Optional query parameter") @RequestParam(required = false)
                     String email) {
         if (email == null) {
-            return users;
+            return respond();
         }
-        return users.stream().filter(user -> user.getEmail().equalsIgnoreCase(email)).toList();
+
+        return respond(
+                users.stream().filter(user -> user.getEmail().equalsIgnoreCase(email)).toList());
     }
 
     @Operation(summary = "Create a new user", description = "Add a new user to the list")
@@ -45,8 +48,13 @@ public class UserController {
     @Operation(summary = "Get a user by Id", description = "Retrieve a specific user by Id")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-        return users.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+    public SuccessResponse<User> getUserById(@PathVariable UUID id) {
+        User user = users.stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+        if (user == null) {
+            return respond();
+        }
+
+        return respond(List.of(user));
     }
 
     private User convertToUser(UUID id, UserRequest userRequest) {
