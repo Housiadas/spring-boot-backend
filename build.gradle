@@ -22,7 +22,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
 	implementation 'org.springframework.boot:spring-boot-starter-restclient'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-config'
+	implementation 'org.springframework.security:spring-security-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
@@ -60,10 +61,23 @@ spotless {
 		endWithNewline()
 	}
 	java {
-		// apply a specific flavor of google-java-format
+		target 'src/*/java/**/*.java'
+
+		// google-java-format places annotations-with-parameters on their own
+		// line by default, which is what we want for validated DTOs.
+		// (Palantir Java Format would wrap constructors more aggressively,
+		// but as of 2.68.0 it does not support JDK 26's javac internals.)
 		googleJavaFormat('1.28.0').aosp().reflowLongStrings().skipJavadocFormatting()
-		// fix formatting of type annotations
-		formatAnnotations()
+
+		// NOTE: formatAnnotations() is intentionally disabled.
+		// It rewrites declaration annotations as type-use annotations and
+		// collapses chains like `@NotEmpty @Size @Email` onto the same line
+		// as the field, which is unreadable in request DTOs.
+
+		removeUnusedImports()
+		importOrder('java', 'javax', 'jakarta', 'org', 'com', '')
+		trimTrailingWhitespace()
+		endWithNewline()
 	}
 }
 
