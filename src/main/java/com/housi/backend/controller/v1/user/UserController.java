@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(
-        name = "User REST API Endpoints",
+        name = "User Endpoints",
         description = "Operations related to info about current user")
 @RestController
 @RequestMapping("/api/v1/users")

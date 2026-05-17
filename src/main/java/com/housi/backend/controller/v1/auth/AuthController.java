@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(
-        name = "Authentication REST API Endpoints",
+        name = "Authentication Endpoints",
         description = "Operations related to register & login")
 public class AuthController {
 

@@ -12,7 +12,7 @@ import com.housi.backend.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Admin REST API Endpoints", description = "Operations related to a admin")
+@Tag(name = "Admin Endpoints", description = "Operations related to a admin")
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
