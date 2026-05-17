@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,28 @@ import io.jsonwebtoken.security.Keys;
 public class JwtServiceImpl implements JwtService {
 
     @Value("${spring.jwt.secret}")
-    private String SECRET_KEY;
+    private String secret;
 
     @Value("${spring.jwt.expiration}")
-    private long JWT_EXPIRATION;
+    private long jwtExpiration;
+
+    private SecretKey signingKey;
+
+    @PostConstruct
+    void init() {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "JWT secret is not configured. Set the JWT_SECRET environment variable to a"
+                            + " Base64-encoded value of at least 32 bytes (HS256).");
+        }
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException(
+                    "JWT secret must decode to at least 32 bytes for HS256; got "
+                            + keyBytes.length);
+        }
+        this.signingKey = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     @Override
     public String extractUsername(String token) {
@@ -35,11 +55,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
     }
 
     @Override
@@ -62,13 +78,8 @@ public class JwtServiceImpl implements JwtService {
                 .claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
-                .signWith(getSigningKey(), Jwts.SIG.HS256)
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
-    }
-
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

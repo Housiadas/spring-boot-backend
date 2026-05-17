@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -21,10 +22,11 @@ public class Permission implements GrantedAuthority {
     @Column(nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID id;
 
+    @Setter
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column private String description;
+    @Setter @Column private String description;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

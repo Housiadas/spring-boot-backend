@@ -24,13 +24,14 @@ public class Role implements GrantedAuthority {
     @Column(nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID id;
 
+    @Setter
     @Column(nullable = false, unique = true, length = 50)
     private String name;
 
-    @Column private String description;
+    @Setter @Column private String description;
 
     @Setter
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),

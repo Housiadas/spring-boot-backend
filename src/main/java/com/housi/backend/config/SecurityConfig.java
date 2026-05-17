@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.housi.backend.repository.UserRepository;
@@ -27,18 +28,22 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(
-            UserRepository userRepository, JwtAuthenticationFilter jwtAuthenticationFilter) {
+            UserRepository userRepository,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            AccessDeniedHandler accessDeniedHandler) {
         this.userRepository = userRepository;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
     UserDetailsService userDetailsService() {
         return username ->
                 userRepository
-                        .findByEmail(username)
+                        .findByEmailWithAuthorities(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
@@ -85,7 +90,9 @@ public class SecurityConfig {
 
         http.exceptionHandling(
                 exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(authenticationEntryPoint()));
+                        exceptionHandling
+                                .authenticationEntryPoint(authenticationEntryPoint())
+                                .accessDeniedHandler(accessDeniedHandler));
 
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
