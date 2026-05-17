@@ -1,8 +1,7 @@
 package com.housi.backend.controller.v1.admin;
 
 import java.util.List;
-
-import jakarta.validation.constraints.Min;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +12,7 @@ import com.housi.backend.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "Admin REST API Endpoints", description = "Operations related to a admin")
+@Tag(name = "Admin Endpoints", description = "Operations related to a admin")
 @RestController
 @RequestMapping("/api/v1/admin")
 public class AdminController {
@@ -36,14 +35,14 @@ public class AdminController {
     @Operation(summary = "Promote user to admin", description = "Promote user to admin role")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}/role")
-    public UserResponse promoteToAdmin(@PathVariable @Min(1) long userId) {
+    public UserResponse promoteToAdmin(@PathVariable UUID userId) {
         return this.adminService.promoteToAdmin(userId);
     }
 
     @Operation(summary = "Delete user", description = "Delete a non-admin user from the system")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable @Min(1) long userId) {
+    public void deleteUser(@PathVariable UUID userId) {
         this.adminService.deleteNonAdminUser(userId);
     }
 }

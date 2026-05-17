@@ -3,6 +3,7 @@ package com.housi.backend.service.admin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public UserResponse promoteToAdmin(long userId) {
+    public UserResponse promoteToAdmin(UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         if (user.isEmpty()
@@ -56,7 +57,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void deleteNonAdminUser(long userId) {
+    public void deleteNonAdminUser(UUID userId) {
         Optional<User> user = userRepository.findById(userId);
 
         if (user.isEmpty()
