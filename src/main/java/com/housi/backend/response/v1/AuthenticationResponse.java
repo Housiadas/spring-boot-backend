@@ -1,4 +1,4 @@
-package com.housi.backend.response;
+package com.housi.backend.response.v1;
 
 public class AuthenticationResponse {
     private String token;

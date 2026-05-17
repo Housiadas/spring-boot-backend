@@ -5,7 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import com.luv2code.springboot.todos.entity.User;
+import com.housi.backend.entity.User;
 
 @Component
 public class FindAuthenticatedUserImpl implements FindAuthenticatedUser {

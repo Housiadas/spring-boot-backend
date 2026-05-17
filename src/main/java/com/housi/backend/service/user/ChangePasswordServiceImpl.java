@@ -6,44 +6,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
+import com.housi.backend.request.v1.PasswordUpdateRequest;
+import com.housi.backend.service.auth.FindAuthenticatedUser;
 
 @Service
-public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
+public class ChangePasswordServiceImpl implements ChangePasswordService {
+
     private final FindAuthenticatedUser findAuthenticatedUser;
-
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public UserServiceImpl(
-            UserRepository userRepository,
+    public ChangePasswordServiceImpl(
             FindAuthenticatedUser findAuthenticatedUser,
-            PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+            PasswordEncoder passwordEncoder,
+            UserRepository userRepository) {
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.passwordEncoder = passwordEncoder;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserResponse getUserInfo() {
-        User user = findAuthenticatedUser.getAuthenticatedUser();
-        return new UserResponse(
-                user.getId(),
-                user.getFirstName() + " " + user.getLastName(),
-                user.getEmail(),
-                user.getAuthorities().stream().map(auth -> (Authority) auth).toList());
-    }
-
-    @Override
-    public void deleteUser() {
-        User user = findAuthenticatedUser.getAuthenticatedUser();
-
-        if (isLastAdmin(user)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin cannot delete itself");
-        }
-
-        userRepository.delete(user);
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -81,18 +62,5 @@ public class UserServiceImpl implements UserService {
 
     private boolean isNewPasswordDifferent(String oldPassword, String newPassword) {
         return !oldPassword.equals(newPassword);
-    }
-
-    private boolean isLastAdmin(User user) {
-        boolean isAdmin =
-                user.getAuthorities().stream()
-                        .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
-
-        if (isAdmin) {
-            long adminCount = userRepository.countAdminUsers();
-            return adminCount <= 1;
-        }
-
-        return false;
     }
 }

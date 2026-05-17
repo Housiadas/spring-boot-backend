@@ -13,20 +13,20 @@ import org.springframework.transaction.annotation.Transactional;
 import com.housi.backend.entity.Authority;
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.AuthenticationRequest;
-import com.housi.backend.request.RegisterRequest;
-import com.housi.backend.response.AuthenticationResponse;
+import com.housi.backend.request.v1.AuthenticationRequest;
+import com.housi.backend.request.v1.RegisterRequest;
+import com.housi.backend.response.v1.AuthenticationResponse;
 import com.housi.backend.service.security.JwtService;
 
 @Service
-public class AuthenticationServiceImpl implements AuthenticationService {
+public class LoginServiceImpl implements LoginService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    public AuthenticationServiceImpl(
+    public LoginServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
@@ -37,15 +37,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    @Override
-    @Transactional
-    public void register(RegisterRequest input) throws Exception {
-        if (isEmailTaken(input.getEmail())) {
-            throw new Exception("Email already taken");
-        }
-        User user = buildNewUser(input);
-        userRepository.save(user);
-    }
 
     @Override
     @Transactional(readOnly = true)

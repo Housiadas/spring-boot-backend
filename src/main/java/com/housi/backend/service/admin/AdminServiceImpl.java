@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.housi.backend.entity.Authority;
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.response.UserResponse;
+import com.housi.backend.response.v1.UserResponse;
 
 @Service
 public class AdminServiceImpl implements AdminService {

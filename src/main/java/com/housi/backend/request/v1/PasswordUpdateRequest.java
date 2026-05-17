@@ -1,4 +1,4 @@
-package com.housi.backend.request;
+package com.housi.backend.request.v1;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

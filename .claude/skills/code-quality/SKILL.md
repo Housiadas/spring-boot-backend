@@ -155,7 +155,7 @@ public User getUser(@PathVariable Long id) {
 // ✅ Use DTO
 @GetMapping("/{id}")
 public UserResponse getUser(@PathVariable Long id) {
-    return userService.findById(id);  // Returns DTO
+    return getCurrentUserService.findById(id);  // Returns DTO
 }
 ```
 

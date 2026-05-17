@@ -4,13 +4,16 @@ import jakarta.persistence.Embeddable;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import lombok.RequiredArgsConstructor;
-
 @Embeddable
-@RequiredArgsConstructor
 public class Authority implements GrantedAuthority {
 
     private String authority;
+
+    public Authority() {}
+
+    public Authority(String authority) {
+        this.authority = authority;
+    }
 
     @Override
     public String getAuthority() {

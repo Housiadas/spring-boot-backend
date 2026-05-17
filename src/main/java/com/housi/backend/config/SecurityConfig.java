@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,7 +27,8 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     public SecurityConfig(
-            UserRepository userRepository, JwtAuthenticationFilter jwtAuthenticationFilter) {
+            UserRepository userRepository,
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userRepository = userRepository;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -66,19 +68,19 @@ public class SecurityConfig {
                 configurer ->
                         configurer
                                 .requestMatchers(
-                                        "/api/auth/**",
+                                        "/api/v1/auth/**",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/swagger-resources/**",
                                         "/webjars/**",
                                         "/docs")
                                 .permitAll()
-                                .requestMatchers("/api/admin/**")
+                                .requestMatchers("/api/v1/admin/**")
                                 .hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated());
 
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         http.exceptionHandling(
                 exceptionHandling ->

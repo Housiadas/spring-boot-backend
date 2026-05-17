@@ -7,29 +7,29 @@
 @RequestMapping("/api/users")
 @Validated
 public class UserController {
-    private final UserService userService;
+    private final UserService getCurrentUserService;
     
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserService getCurrentUserService) {
+        this.getCurrentUserService = getCurrentUserService;
     }
     
     @GetMapping
     public ResponseEntity<Page<UserResponse>> getUsers(
             @PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
-        Page<UserResponse> users = userService.findAll(pageable);
+        Page<UserResponse> users = getCurrentUserService.findAll(pageable);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        UserResponse user = userService.findById(id);
+        UserResponse user = getCurrentUserService.findById(id);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(
             @Valid @RequestBody UserCreateRequest request) {
-        UserResponse user = userService.create(request);
+        UserResponse user = getCurrentUserService.create(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -42,14 +42,14 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequest request) {
-        UserResponse user = userService.update(id, request);
+        UserResponse user = getCurrentUserService.update(id, request);
         return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable Long id) {
-        userService.delete(id);
+        getCurrentUserService.delete(id);
     }
 }
 ```
