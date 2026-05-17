@@ -13,7 +13,7 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private UserService userService;
+    private UserService getCurrentUserService;
 
     @Test
     @DisplayName("Should create user successfully")
@@ -36,7 +36,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         // When
-        UserResponse response = userService.create(request);
+        UserResponse response = getCurrentUserService.create(request);
 
         // Then
         assertThat(response).isNotNull();
@@ -61,7 +61,7 @@ class UserServiceTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
         // When & Then
-        assertThatThrownBy(() -> userService.create(request))
+        assertThatThrownBy(() -> getCurrentUserService.create(request))
             .isInstanceOf(DuplicateResourceException.class)
             .hasMessageContaining("Email already registered");
 
@@ -153,7 +153,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserService getCurrentUserService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -168,7 +168,7 @@ class UserControllerTest {
             new UserResponse(2L, "user2@example.com", "user2", 30, true, null, null)
         ));
 
-        when(userService.findAll(any(Pageable.class))).thenReturn(users);
+        when(getCurrentUserService.findAll(any(Pageable.class))).thenReturn(users);
 
         // When & Then
         mockMvc.perform(get("/api/v1/users")
@@ -202,7 +202,7 @@ class UserControllerTest {
             LocalDateTime.now()
         );
 
-        when(userService.create(any(UserCreateRequest.class))).thenReturn(response);
+        when(getCurrentUserService.create(any(UserCreateRequest.class))).thenReturn(response);
 
         // When & Then
         mockMvc.perform(post("/api/v1/users")
@@ -332,7 +332,7 @@ class UserServiceIntegrationTest {
     }
 
     @Autowired
-    private UserService userService;
+    private UserService getCurrentUserService;
 
     @Autowired
     private UserRepository userRepository;
@@ -354,8 +354,8 @@ class UserServiceIntegrationTest {
         );
 
         // When
-        UserResponse created = userService.create(request);
-        UserResponse found = userService.findById(created.id());
+        UserResponse created = getCurrentUserService.create(request);
+        UserResponse found = getCurrentUserService.findById(created.id());
 
         // Then
         assertThat(found).isNotNull();
@@ -374,7 +374,7 @@ class UserReactiveControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private UserReactiveService userService;
+    private UserReactiveService getCurrentUserService;
 
     @Test
     @DisplayName("Should get user reactively")
@@ -390,7 +390,7 @@ class UserReactiveControllerTest {
             LocalDateTime.now()
         );
 
-        when(userService.findById(1L)).thenReturn(Mono.just(user));
+        when(getCurrentUserService.findById(1L)).thenReturn(Mono.just(user));
 
         // When & Then
         webTestClient.get()
@@ -426,7 +426,7 @@ class UserReactiveControllerTest {
             LocalDateTime.now()
         );
 
-        when(userService.create(any(UserCreateRequest.class))).thenReturn(Mono.just(response));
+        when(getCurrentUserService.create(any(UserCreateRequest.class))).thenReturn(Mono.just(response));
 
         // When & Then
         webTestClient.post()
