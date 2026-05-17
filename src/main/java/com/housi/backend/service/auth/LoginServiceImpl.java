@@ -37,7 +37,6 @@ public class LoginServiceImpl implements LoginService {
         this.jwtService = jwtService;
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public AuthenticationResponse login(AuthenticationRequest request) {
