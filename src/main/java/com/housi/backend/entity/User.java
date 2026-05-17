@@ -3,6 +3,7 @@ package com.housi.backend.entity;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.persistence.*;
 
@@ -20,9 +21,9 @@ import lombok.Setter;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "uuid")
+    private UUID id;
 
     @Column(nullable = false)
     private String firstName;

@@ -1,6 +1,7 @@
 package com.housi.backend.response.v1;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.housi.backend.entity.Authority;
 
@@ -13,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserResponse {
 
-    private long id;
+    private UUID id;
 
     private String fullName;
 

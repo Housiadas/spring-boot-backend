@@ -1,5 +1,7 @@
 package com.housi.backend.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 @Table(name = "todos")
@@ -7,9 +9,9 @@ import jakarta.persistence.*;
 public class Todo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, updatable = false, columnDefinition = "uuid")
+    private UUID id;
 
     @Column(nullable = false)
     private String title;
@@ -38,11 +40,11 @@ public class Todo {
         this.owner = owner;
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
