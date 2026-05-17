@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.response.v1.UserResponse;
@@ -26,6 +27,7 @@ public class AdminController {
     @Operation(
             summary = "Get all users",
             description = "Retrieve a list of all users in the system")
+    @PreAuthorize("hasAuthority('admin:read')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping
     public List<UserResponse> getAllUsers() {
@@ -33,6 +35,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Promote user to admin", description = "Promote user to admin role")
+    @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}/role")
     public UserResponse promoteToAdmin(@PathVariable UUID userId) {
@@ -40,6 +43,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Delete user", description = "Delete a non-admin user from the system")
+    @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable UUID userId) {

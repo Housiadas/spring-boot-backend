@@ -2,8 +2,12 @@ package com.housi.backend.entity;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.persistence.*;
 
@@ -47,31 +51,31 @@ public class User implements UserDetails {
     private Date updatedAt;
 
     @Setter
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"))
-    private List<Authority> authorities;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Todo> todos;
 
-    public User(
-            String firstName,
-            String LastName,
-            String email,
-            String password,
-            List<Authority> authorities) {
+    public User(String firstName, String lastName, String email, String password, Set<Role> roles) {
         this.firstName = firstName;
-        this.lastName = LastName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.authorities = authorities;
+        this.roles = roles;
     }
 
     public User() {}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return Stream.concat(
+                        roles.stream(), roles.stream().flatMap(r -> r.getPermissions().stream()))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override

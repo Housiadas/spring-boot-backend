@@ -8,12 +8,6 @@ CREATE TABLE users (
     updated_at  timestamp(6)
 );
 
-CREATE TABLE user_authorities (
-    user_id    uuid         NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    authority  varchar(255)
-);
-CREATE INDEX idx_user_authorities_user_id ON user_authorities (user_id);
-
 CREATE TABLE todos (
     id           uuid         PRIMARY KEY,
     title        varchar(255) NOT NULL,

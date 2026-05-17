@@ -1,9 +1,7 @@
 package com.housi.backend.response.v1;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
-
-import com.housi.backend.entity.Authority;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,5 +18,7 @@ public class UserResponse {
 
     private String email;
 
-    private List<Authority> authorities;
+    private Set<String> roles;
+
+    private Set<String> permissions;
 }
