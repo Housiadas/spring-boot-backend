@@ -1,7 +1,6 @@
-package com.housi.backend.config;
+package com.housi.backend.filter;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,6 +17,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.housi.backend.entity.User;
 import com.housi.backend.service.security.JwtService;
 
 import io.jsonwebtoken.JwtException;
@@ -41,7 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        MDC.put("requestId", UUID.randomUUID().toString());
         try {
             final String authHeader = request.getHeader("Authorization");
             final String jwt;
@@ -73,12 +72,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new WebAuthenticationDetailsSource().buildDetails(request));
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    if (userDetails instanceof User user) {
+                        MDC.put("userId", user.getId().toString());
+                    }
                 }
             }
 
             filterChain.doFilter(request, response);
         } finally {
-            MDC.remove("requestId");
+            MDC.remove("userId");
         }
     }
 }

@@ -2,8 +2,6 @@ package com.housi.backend.service.audit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -50,7 +48,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.role.created")
                 .addKeyValue("event", "rbac.role.created")
-                .addKeyValue("actor", actor())
                 .addKeyValue("role", roleName)
                 .log();
     }
@@ -59,7 +56,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.role.updated")
                 .addKeyValue("event", "rbac.role.updated")
-                .addKeyValue("actor", actor())
                 .addKeyValue("role", roleName)
                 .log();
     }
@@ -68,7 +64,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.role.deleted")
                 .addKeyValue("event", "rbac.role.deleted")
-                .addKeyValue("actor", actor())
                 .addKeyValue("role", roleName)
                 .log();
     }
@@ -77,7 +72,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.permission.created")
                 .addKeyValue("event", "rbac.permission.created")
-                .addKeyValue("actor", actor())
                 .addKeyValue("permission", permissionName)
                 .log();
     }
@@ -86,7 +80,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.permission.updated")
                 .addKeyValue("event", "rbac.permission.updated")
-                .addKeyValue("actor", actor())
                 .addKeyValue("permission", permissionName)
                 .log();
     }
@@ -95,7 +88,6 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.permission.deleted")
                 .addKeyValue("event", "rbac.permission.deleted")
-                .addKeyValue("actor", actor())
                 .addKeyValue("permission", permissionName)
                 .log();
     }
@@ -104,24 +96,16 @@ public class AuditLogger {
         log.atInfo()
                 .setMessage("rbac.role.permissions.changed")
                 .addKeyValue("event", "rbac.role.permissions.changed")
-                .addKeyValue("actor", actor())
                 .addKeyValue("role", roleName)
                 .log();
     }
 
-    public void userRolesChanged(String userId, String before, String after) {
+    public void userRolesChanged(String before, String after) {
         log.atInfo()
                 .setMessage("rbac.user.roles.changed")
                 .addKeyValue("event", "rbac.user.roles.changed")
-                .addKeyValue("actor", actor())
-                .addKeyValue("user", userId)
                 .addKeyValue("before", before)
                 .addKeyValue("after", after)
                 .log();
-    }
-
-    private String actor() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth == null ? "anonymous" : auth.getName();
     }
 }

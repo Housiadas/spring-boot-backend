@@ -71,8 +71,7 @@ public class UserRoleAdminServiceImpl implements UserRoleAdminService {
         user.setRoles(resolved);
         User saved = userRepository.save(user);
 
-        auditLogger.userRolesChanged(
-                userId.toString(), String.join(",", before), String.join(",", roleNames));
+        auditLogger.userRolesChanged(String.join(",", before), String.join(",", roleNames));
 
         return toResponse(saved);
     }

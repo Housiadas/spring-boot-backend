@@ -1,5 +1,6 @@
 package com.housi.backend.config;
 
+import com.housi.backend.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
