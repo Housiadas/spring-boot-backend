@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +22,6 @@ import com.housi.backend.entity.User;
 import com.housi.backend.service.security.JwtService;
 
 import io.jsonwebtoken.JwtException;
-import lombok.NonNull;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
