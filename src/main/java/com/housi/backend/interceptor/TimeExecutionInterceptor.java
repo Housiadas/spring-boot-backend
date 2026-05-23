@@ -1,4 +1,4 @@
-package com.housi.backend.interceptors;
+package com.housi.backend.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -6,10 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import com.housi.backend.constant.AppConstants;
+
 public class TimeExecutionInterceptor implements HandlerInterceptor {
-
-    private static final String TIME = "StopWatch";
-
     @Override
     public boolean preHandle(
             final HttpServletRequest request,
@@ -17,7 +16,7 @@ public class TimeExecutionInterceptor implements HandlerInterceptor {
             @NonNull final Object handler) {
         final long nano = System.nanoTime();
 
-        request.setAttribute(TIME, nano);
+        request.setAttribute(AppConstants.API_TIME, nano);
         return true;
     }
 }

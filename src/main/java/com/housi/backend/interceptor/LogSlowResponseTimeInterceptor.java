@@ -1,4 +1,4 @@
-package com.housi.backend.interceptors;
+package com.housi.backend.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

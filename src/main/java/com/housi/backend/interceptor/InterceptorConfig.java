@@ -1,4 +1,4 @@
-package com.housi.backend.interceptors;
+package com.housi.backend.interceptor;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
