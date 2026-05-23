@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.housi.backend.request.v1.admin.RoleRequest;
-import com.housi.backend.response.v1.RoleResponse;
+import com.housi.backend.response.v1.role.RoleResponse;
 
 public interface RoleAdminService {
     List<RoleResponse> getAll();

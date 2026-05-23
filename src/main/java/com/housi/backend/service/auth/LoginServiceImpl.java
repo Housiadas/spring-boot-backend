@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.v1.AuthenticationRequest;
-import com.housi.backend.response.v1.AuthenticationResponse;
+import com.housi.backend.request.v1.auth.LoginRequest;
+import com.housi.backend.response.v1.auth.LoginResponse;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.security.JwtService;
 import com.housi.backend.service.security.LoginAttemptService;
@@ -43,7 +43,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     @Transactional(readOnly = true)
-    public AuthenticationResponse login(AuthenticationRequest request) {
+    public LoginResponse login(LoginRequest request) {
         String email = request.getEmail();
 
         if (loginAttemptService.isBlocked(email)) {
@@ -75,6 +75,6 @@ public class LoginServiceImpl implements LoginService {
 
         String jwtToken = jwtService.generateToken(new HashMap<>(), user);
         auditLogger.loginSuccess(email);
-        return new AuthenticationResponse(jwtToken);
+        return new LoginResponse(jwtToken);
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.request.v1.admin.AssignPermissionsRequest;
 import com.housi.backend.request.v1.admin.RoleRequest;
-import com.housi.backend.response.v1.RoleResponse;
+import com.housi.backend.response.v1.role.RoleResponse;
 import com.housi.backend.service.role.RoleAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;

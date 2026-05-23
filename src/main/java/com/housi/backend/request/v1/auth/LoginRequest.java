@@ -1,4 +1,4 @@
-package com.housi.backend.request.v1;
+package com.housi.backend.request.v1.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class AuthenticationRequest {
+public class LoginRequest {
 
     @NotEmpty(message = "Email is mandatory")
     @Email(message = "Invalid email format")

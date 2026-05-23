@@ -1,4 +1,4 @@
-package com.housi.backend.response.v1;
+package com.housi.backend.response.v1.permission;
 
 import java.util.UUID;
 
