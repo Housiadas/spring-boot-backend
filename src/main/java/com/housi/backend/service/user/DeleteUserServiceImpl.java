@@ -33,8 +33,7 @@ public class DeleteUserServiceImpl implements DeleteUserService {
 
     private boolean isLastAdmin(User user) {
         boolean isAdmin =
-                user.getAuthorities().stream()
-                        .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+                user.getRoles().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
 
         if (isAdmin) {
             long adminCount = userRepository.countAdminUsers();

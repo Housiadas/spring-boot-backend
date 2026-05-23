@@ -1,10 +1,12 @@
 package com.housi.backend.config;
 
+import com.housi.backend.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,28 +17,34 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.housi.backend.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AccessDeniedHandler accessDeniedHandler;
 
     public SecurityConfig(
-            UserRepository userRepository, JwtAuthenticationFilter jwtAuthenticationFilter) {
+            UserRepository userRepository,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            AccessDeniedHandler accessDeniedHandler) {
         this.userRepository = userRepository;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
     UserDetailsService userDetailsService() {
         return username ->
                 userRepository
-                        .findByEmail(username)
+                        .findByEmailWithAuthorities(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
@@ -83,7 +91,9 @@ public class SecurityConfig {
 
         http.exceptionHandling(
                 exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(authenticationEntryPoint()));
+                        exceptionHandling
+                                .authenticationEntryPoint(authenticationEntryPoint())
+                                .accessDeniedHandler(accessDeniedHandler));
 
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

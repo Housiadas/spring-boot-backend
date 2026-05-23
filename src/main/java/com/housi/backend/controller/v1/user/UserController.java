@@ -3,10 +3,11 @@ package com.housi.backend.controller.v1.user;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.housi.backend.request.v1.PasswordUpdateRequest;
-import com.housi.backend.response.v1.UserResponse;
+import com.housi.backend.request.v1.user.PasswordUpdateRequest;
+import com.housi.backend.response.v1.user.UserResponse;
 import com.housi.backend.service.user.ChangePasswordService;
 import com.housi.backend.service.user.DeleteUserService;
 import com.housi.backend.service.user.GetCurrentUserService;
@@ -14,9 +15,7 @@ import com.housi.backend.service.user.GetCurrentUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(
-        name = "User Endpoints",
-        description = "Operations related to info about current user")
+@Tag(name = "User Endpoints", description = "Operations related to info about current user")
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -35,6 +34,7 @@ public class UserController {
     }
 
     @Operation(summary = "Current user information", description = "Get current user details")
+    @PreAuthorize("hasAuthority('user:read')")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/current")
     public UserResponse getUserInfo() {
@@ -42,6 +42,7 @@ public class UserController {
     }
 
     @Operation(summary = "Delete user", description = "Delete current user account")
+    @PreAuthorize("hasAuthority('user:delete')")
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping
     public void deleteUser() {
@@ -49,6 +50,7 @@ public class UserController {
     }
 
     @Operation(summary = "Password update", description = "Change user password after verification")
+    @PreAuthorize("hasAuthority('user:write')")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/change/password")
     public void passwordUpdate(@Valid @RequestBody PasswordUpdateRequest passwordUpdateRequest)

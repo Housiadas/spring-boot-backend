@@ -1,8 +1,8 @@
 package com.housi.backend.service.auth;
 
-import com.housi.backend.request.v1.AuthenticationRequest;
-import com.housi.backend.response.v1.AuthenticationResponse;
+import com.housi.backend.request.v1.auth.LoginRequest;
+import com.housi.backend.response.v1.auth.LoginResponse;
 
 public interface LoginService {
-    AuthenticationResponse login(AuthenticationRequest request);
+    LoginResponse login(LoginRequest request);
 }

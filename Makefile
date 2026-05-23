@@ -10,6 +10,9 @@ FLYWAY = docker run --rm --network=host \
 lint:
 	docker run --rm -v "$(PWD)":/app -w /app eclipse-temurin:26-jdk ./gradlew spotlessApply
 
+test:
+	docker run --rm -v "$(PWD)":/app -w /app eclipse-temurin:26-jdk ./gradlew test
+
 migrate/up:
 	$(FLYWAY) migrate
 
