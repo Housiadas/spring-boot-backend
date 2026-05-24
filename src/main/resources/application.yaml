@@ -86,6 +86,13 @@ http:
     webhook-site:
       base-url: ${HTTP_CLIENTS_MY_EXTERNAL_API_BASE_URL}
 
+slack:
+  env: ${SLACK_ENV}
+  channels:
+    api-alert:
+      url: ${SLACK_API_ALERT_URL}
+      name: ${SLACK_API_ALERT_CHANNEL}
+
 rate-limit:
   default:
     name: ${DEFAULT_RATE_LIMIT_NAME:DEFAULT}

@@ -79,17 +79,21 @@ public class WebClientUtils {
                                                 ex -> {
                                                     if (ExceptionUtils.getRootCause(ex)
                                                             instanceof PrematureCloseException) {
-                                                        log.info(
-                                                                "HTTP[RETRY]"
-                                                                        + " PrematureCloseException"
-                                                                        + " detected retrying");
+                                                        log.atInfo()
+                                                                .setMessage("HTTP[RETRY] detected retrying")
+                                                                .addKeyValue(
+                                                                        "cause",
+                                                                        "PrematureCloseException")
+                                                                .log();
                                                         return true;
                                                     } else if (ExceptionUtils.getRootCause(ex)
                                                             instanceof SslClosedEngineException) {
-                                                        log.info(
-                                                                "HTTP[RETRY]"
-                                                                    + " SslClosedEngineException"
-                                                                    + " detected retrying");
+                                                        log.atInfo()
+                                                                .setMessage("HTTP[RETRY] detected retrying")
+                                                                .addKeyValue(
+                                                                        "cause",
+                                                                        "SslClosedEngineException")
+                                                                .log();
                                                         return true;
                                                     }
                                                     return false;
@@ -107,17 +111,19 @@ public class WebClientUtils {
                             .map(
                                     body -> {
                                         if (status.is2xxSuccessful()) {
-                                            log.info(
-                                                    "HTTP[{}] response {} '{}'",
-                                                    webClientName,
-                                                    status.value(),
-                                                    body);
+                                            log.atInfo()
+                                                    .setMessage("HTTP response")
+                                                    .addKeyValue("client", webClientName)
+                                                    .addKeyValue("status", status.value())
+                                                    .addKeyValue("body", body)
+                                                    .log();
                                         } else {
-                                            log.warn(
-                                                    "HTTP[{}] errorResponse '{}' '{}'",
-                                                    webClientName,
-                                                    status.value(),
-                                                    body);
+                                            log.atWarn()
+                                                    .setMessage("HTTP errorResponse")
+                                                    .addKeyValue("client", webClientName)
+                                                    .addKeyValue("status", status.value())
+                                                    .addKeyValue("body", body)
+                                                    .log();
                                         }
                                         return response;
                                     });

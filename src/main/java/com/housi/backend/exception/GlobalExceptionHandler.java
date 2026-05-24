@@ -50,7 +50,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             @NonNull final HttpHeaders headers,
             @NonNull final HttpStatusCode status,
             @NonNull final WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Method argument validation exception")
+                .setCause(ex)
+                .log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
 
@@ -73,7 +76,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             final @NonNull HttpHeaders headers,
             final @NonNull HttpStatusCode status,
             final @NonNull WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Handler method validation exception")
+                .setCause(ex)
+                .log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
         for (final var validation : ex.getParameterValidationResults()) {
@@ -98,7 +104,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     public ProblemDetail handleJakartaConstraintViolationException(
             final jakarta.validation.ConstraintViolationException ex, final WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Constraint validation exception")
+                .addKeyValue("exception", ex)
+                .log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
         for (final var violation : ex.getConstraintViolations()) {
@@ -124,7 +133,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         jakarta.persistence.PersistenceException.class,
     })
     public ProblemDetail handlePersistenceException(final Exception ex, final WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Persistence exception")
+                .setCause(ex)
+                .log();
 
         final String cause = NestedExceptionUtils.getMostSpecificCause(ex).getLocalizedMessage();
         final String errorDetail = this.extractPersistenceDetails(cause);
@@ -138,7 +150,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(final Exception ex, final WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Access denied exception")
+                .setCause(ex)
+                .log();
+
         return this.buildProblemDetail(HttpStatus.FORBIDDEN, null);
     }
 
@@ -146,7 +162,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ProblemDetail handleEmptyResultDataAccessException(
             final EmptyResultDataAccessException ex, final WebRequest request) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Empty result data access exception")
+                .setCause(ex)
+                .log();
 
         return this.buildProblemDetail(HttpStatus.NOT_FOUND, "no record found for this id");
     }
@@ -156,7 +175,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleLazyInitialization(
             final LazyInitializationException ex, final WebRequest request) {
 
-        log.warn(ex.getMessage(), ex);
+        log.atWarn()
+                .setMessage("Lazy initialization exception")
+                .setCause(ex)
+                .log();
 
         return this.buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, API_DEFAULT_ERROR_MESSAGE);
     }
@@ -166,7 +188,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      *  */
     @ExceptionHandler(RootException.class)
     public ResponseEntity<ProblemDetail> rootException(final RootException ex) {
-        log.info(ex.getMessage(), ex);
+        log.atInfo()
+                .setMessage("Root exception")
+                .setCause(ex)
+                .log();
 
         final ProblemDetail problemDetail =
                 this.buildProblemDetail(
@@ -180,7 +205,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Throwable.class)
     public ProblemDetail handleAllExceptions(final Throwable ex, final WebRequest request) {
-        log.warn(format("%s", ex.getMessage()), ex);
+        log.atWarn()
+                .setMessage("Unhandled exception")
+                .setCause(ex)
+                .log();
 
         return this.buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, API_DEFAULT_ERROR_MESSAGE);
     }

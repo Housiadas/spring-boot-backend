@@ -40,7 +40,7 @@ public class JsonUtils {
                     .registerModule(new JavaTimeModule())
                     .writeValueAsString(content);
         } catch (final Exception ex) {
-            log.error(SERIALIZATION_ERROR_MESSAGE, ex);
+            log.atError().setMessage(SERIALIZATION_ERROR_MESSAGE).setCause(ex).log();
             throw new IllegalArgumentException(ex);
         }
     }
@@ -56,7 +56,7 @@ public class JsonUtils {
                     .registerModule(new JavaTimeModule())
                     .writeValueAsString(content);
         } catch (final Exception ex) {
-            log.error(SERIALIZATION_ERROR_MESSAGE, ex);
+            log.atError().setMessage(SERIALIZATION_ERROR_MESSAGE).setCause(ex).log();
             throw new IllegalArgumentException(ex);
         }
     }
@@ -78,7 +78,7 @@ public class JsonUtils {
                     .registerModule(new JavaTimeModule())
                     .readValue(content, valueType);
         } catch (final Exception ex) {
-            log.warn(SERIALIZATION_ERROR_MESSAGE, ex);
+            log.atWarn().setMessage(SERIALIZATION_ERROR_MESSAGE).setCause(ex).log();
             throw new IllegalArgumentException(ex);
         }
     }
