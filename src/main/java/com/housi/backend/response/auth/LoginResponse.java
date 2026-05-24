@@ -1,4 +1,4 @@
-package com.housi.backend.response.v1.auth;
+package com.housi.backend.response.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

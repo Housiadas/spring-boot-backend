@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.request.v1.admin.AssignRolesRequest;
-import com.housi.backend.response.v1.user.UserResponse;
+import com.housi.backend.response.user.UserResponse;
 import com.housi.backend.service.userrole.UserRoleAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;

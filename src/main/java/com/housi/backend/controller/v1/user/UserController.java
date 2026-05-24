@@ -7,7 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.request.v1.user.PasswordUpdateRequest;
-import com.housi.backend.response.v1.user.UserResponse;
+import com.housi.backend.response.user.UserResponse;
 import com.housi.backend.service.user.ChangePasswordService;
 import com.housi.backend.service.user.DeleteUserService;
 import com.housi.backend.service.user.GetCurrentUserService;

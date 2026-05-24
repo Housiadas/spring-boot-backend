@@ -1,4 +1,4 @@
-DB_URL ?= jdbc:postgresql://localhost:5432/mydatabase
+DB_URL ?= jdbc:postgresql://localhost:5432/housi_db
 DB_USER ?= myuser
 DB_PASSWORD ?= secret
 

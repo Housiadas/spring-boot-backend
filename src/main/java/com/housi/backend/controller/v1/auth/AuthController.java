@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.request.v1.auth.LoginRequest;
 import com.housi.backend.request.v1.auth.RegisterRequest;
-import com.housi.backend.response.v1.auth.LoginResponse;
+import com.housi.backend.response.auth.LoginResponse;
 import com.housi.backend.service.auth.LoginService;
 import com.housi.backend.service.auth.RegisterService;
 

@@ -1,4 +1,4 @@
-package com.housi.backend.response.v1.user;
+package com.housi.backend.response.user;
 
 import java.util.Set;
 import java.util.UUID;
