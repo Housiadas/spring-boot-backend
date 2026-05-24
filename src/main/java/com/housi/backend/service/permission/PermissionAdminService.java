@@ -3,7 +3,7 @@ package com.housi.backend.service.permission;
 import java.util.List;
 import java.util.UUID;
 
-import com.housi.backend.request.v1.admin.PermissionRequest;
+import com.housi.backend.request.admin.PermissionRequest;
 import com.housi.backend.response.permission.PermissionResponse;
 
 public interface PermissionAdminService {

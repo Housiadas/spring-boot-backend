@@ -34,16 +34,6 @@ public class AuditLogger {
                 .log();
     }
 
-    public void accessDenied(String email, String method, String path) {
-        log.atWarn()
-                .setMessage("auth.access.denied")
-                .addKeyValue("event", "auth.access.denied")
-                .addKeyValue("email", email)
-                .addKeyValue("method", method)
-                .addKeyValue("path", path)
-                .log();
-    }
-
     public void roleCreated(String roleName) {
         log.atInfo()
                 .setMessage("rbac.role.created")

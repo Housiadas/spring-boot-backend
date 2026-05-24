@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.v1.user.PasswordUpdateRequest;
+import com.housi.backend.request.user.PasswordUpdateRequest;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
 
 @Service
