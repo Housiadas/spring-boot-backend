@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.housi.backend.request.v1.admin.RoleRequest;
-import com.housi.backend.response.v1.role.RoleResponse;
+import com.housi.backend.request.admin.RoleRequest;
+import com.housi.backend.response.role.RoleResponse;
 
 public interface RoleAdminService {
     List<RoleResponse> getAll();

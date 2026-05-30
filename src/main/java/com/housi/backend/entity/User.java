@@ -58,9 +58,6 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Todo> todos;
-
     public User(String firstName, String lastName, String email, String password, Set<Role> roles) {
         this.firstName = firstName;
         this.lastName = lastName;

@@ -15,8 +15,8 @@ import com.housi.backend.entity.Permission;
 import com.housi.backend.entity.Role;
 import com.housi.backend.repository.PermissionRepository;
 import com.housi.backend.repository.RoleRepository;
-import com.housi.backend.request.v1.admin.RoleRequest;
-import com.housi.backend.response.v1.role.RoleResponse;
+import com.housi.backend.request.admin.RoleRequest;
+import com.housi.backend.response.role.RoleResponse;
 import com.housi.backend.service.audit.AuditLogger;
 
 @Service
