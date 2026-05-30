@@ -19,15 +19,13 @@ Best practices and common pitfalls for JPA/Hibernate in Spring applications.
 
 ## Quick Reference: Common Problems
 
-| Problem | Symptom | Solution |
-|---------|---------|----------|
-| N+1 queries | Many SELECT statements | JOIN FETCH, @EntityGraph |
+| Problem                     | Symptom                   | Solution                                         |
+|-----------------------------|---------------------------|--------------------------------------------------|
+| N+1 queries                 | Many SELECT statements    | JOIN FETCH, @EntityGraph                         |
 | LazyInitializationException | Error outside transaction | Open Session in View, DTO projection, JOIN FETCH |
-| Slow queries | Performance issues | Pagination, projections, indexes |
-| Dirty checking overhead | Slow updates | Read-only transactions, DTOs |
-| Lost updates | Concurrent modifications | Optimistic locking (@Version) |
-
----
+| Slow queries                | Performance issues        | Pagination, projections, indexes                 |
+| Dirty checking overhead     | Slow updates              | Read-only transactions, DTOs                     |
+| Lost updates                | Concurrent modifications  | Optimistic locking (@Version)                    |
 
 ## N+1 Problem
 

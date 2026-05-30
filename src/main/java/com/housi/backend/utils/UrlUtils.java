@@ -3,10 +3,9 @@ package com.housi.backend.utils;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
+import com.housi.backend.entity.base.BaseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.mycompany.microservice.api.entities.base.BaseEntity;
 
 import lombok.experimental.UtilityClass;
 

@@ -30,12 +30,12 @@ Effective logging for Java applications with focus on structured, AI-parsable fo
 {"timestamp":"2026-01-29T10:15:30Z","level":"INFO","orderId":12345,"userId":"user-789","total":99.99}
 ```
 
-| Aspect | Text | JSON |
-|--------|------|------|
-| Parsing | Regex/interpretation | Direct field access |
-| Token usage | Higher (repeated patterns) | Lower (structured) |
-| Error extraction | Parse stack trace text | `exception` field |
-| Filtering | grep patterns | `jq` queries |
+| Aspect           | Text                       | JSON                |
+|------------------|----------------------------|---------------------|
+| Parsing          | Regex/interpretation       | Direct field access |
+| Token usage      | Higher (repeated patterns) | Lower (structured)  |
+| Error extraction | Parse stack trace text     | `exception` field   |
+| Filtering        | grep patterns              | `jq` queries        |
 
 ### Recommended Setup for AI-Assisted Development
 

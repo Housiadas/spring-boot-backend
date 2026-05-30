@@ -14,16 +14,14 @@ Quick reference for common design patterns in Java.
 
 ## Quick Reference: When to Use What
 
-| Problem | Pattern | Use When |
-|---------|---------|----------|
-| Complex object construction | **Builder** | Many parameters, some optional |
-| Create objects without specifying class | **Factory** | Type determined at runtime |
-| Multiple algorithms, swap at runtime | **Strategy** | Behavior varies by context |
-| Add behavior without changing class | **Decorator** | Dynamic composition needed |
-| Notify multiple objects of changes | **Observer** | One-to-many dependency |
-| Convert incompatible interfaces | **Adapter** | Integrate legacy/3rd party code |
-
----
+| Problem                                 | Pattern       | Use When                        |
+|-----------------------------------------|---------------|---------------------------------|
+| Complex object construction             | **Builder**   | Many parameters, some optional  |
+| Create objects without specifying class | **Factory**   | Type determined at runtime      |
+| Multiple algorithms, swap at runtime    | **Strategy**  | Behavior varies by context      |
+| Add behavior without changing class     | **Decorator** | Dynamic composition needed      |
+| Notify multiple objects of changes      | **Observer**  | One-to-many dependency          |
+| Convert incompatible interfaces         | **Adapter**   | Integrate legacy/3rd party code |
 
 ## Creational Patterns
 
