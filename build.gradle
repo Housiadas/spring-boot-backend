@@ -18,59 +18,96 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-cache'
-	implementation 'org.apache.commons:commons-pool2'
-	implementation 'org.springframework.boot:spring-boot-flyway'
-	implementation 'org.flywaydb:flyway-database-postgresql'
-	implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
-	implementation 'org.springframework.boot:spring-boot-starter-restclient'
-	implementation 'org.springframework.boot:spring-boot-starter-webclient'
-	implementation 'io.github.resilience4j:resilience4j-spring-boot4:2.4.0'
-	implementation 'io.github.resilience4j:resilience4j-reactor:2.4.0'
-	implementation 'com.slack.api:slack-api-client:1.45.3'
-	implementation 'org.springframework.security:spring-security-config'
-	implementation 'org.springframework.security:spring-security-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2'
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-	runtimeOnly 'org.postgresql:postgresql'
-	implementation 'org.mapstruct:mapstruct:1.6.3'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-	annotationProcessor 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-opentelemetry-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-restclient-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation 'org.testcontainers:testcontainers-grafana'
-	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
-	testImplementation 'org.testcontainers:testcontainers-postgresql'
-	testImplementation 'com.redis:testcontainers-redis:2.2.4'
-	testCompileOnly 'org.projectlombok:lombok'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testAnnotationProcessor 'org.projectlombok:lombok'
+ext {
+	springBootVesrion = "4.0.6"
+	springDocVersion = "3.0.2"
+	cucumberVersion = "7.29.0"
+	mapstructVersion = "1.6.3"
+	lombokVersion = "1.18.42"
+	wireMockVersion = "3.13.1"
+	jacocoVersion = "0.8.9"
+	junitVintage = "5.13.4"
+	resilienceSpring4Version = "2.4.0"
+	slackVersion = "1.45.3"
+	jwtVersion = "0.12.6"
+	flywayVersion = "11.14.1"
+	postgresqlVersion = "42.7.10"
+	testcontainersVersion = "2.0.5"
+	redisTestContainer = "2.2.4"
+	apacheCommonVersion = "2.12.1"
+	junitVersion = "6.0.3"
 }
 
+dependencies {
+	// Spring
+	implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-data-redis:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-cache:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-opentelemetry:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-restclient:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-webclient:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-webmvc:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVesrion}"
+	implementation "org.springframework.boot:spring-boot-flyway:${springBootVesrion}"
+	implementation "org.springframework.security:spring-security-config:${springBootVesrion}"
+	implementation "org.springframework.security:spring-security-web:${springBootVesrion}"
+	developmentOnly "org.springframework.boot:spring-boot-devtools:${springBootVesrion}"
+	developmentOnly "org.springframework.boot:spring-boot-docker-compose:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-data-jpa-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-opentelemetry-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-restclient-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-security-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-validation-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-starter-webmvc-test:${springBootVesrion}"
+	testImplementation "org.springframework.boot:spring-boot-testcontainers:${springBootVesrion}"
+	// SpringDoc
+	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+	// Cucumber Dependencies for BDD
+	testImplementation "io.cucumber:cucumber-java:${cucumberVersion}"
+	testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
+	testImplementation "io.cucumber:cucumber-spring:${cucumberVersion}"
+	testImplementation "org.junit.vintage:junit-vintage-engine:${junitVintage}"
+	//MapStruct Dependencies
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+	//Lombok Dependencies
+	implementation "org.projectlombok:lombok:${lombokVersion}"
+	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	// Resilience4j (circuit braker)
+	implementation "io.github.resilience4j:resilience4j-spring-boot4:${resilienceSpring4Version}"
+	implementation "io.github.resilience4j:resilience4j-reactor:${resilienceSpring4Version}"
+	// Slack
+	implementation "com.slack.api:slack-api-client:${slackVersion}"
+	// flywaydb postgresql
+	implementation "org.flywaydb:flyway-database-postgresql:${flywayVersion}"
+	// postgresql
+	runtimeOnly "org.postgresql:postgresql:${postgresqlVersion}"
+	// jsonwebtoken
+	implementation "io.jsonwebtoken:jjwt-api:${jwtVersion}"
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:${jwtVersion}"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jwtVersion}"
+	// testcontainers
+	testImplementation "org.testcontainers:testcontainers-grafana:${testcontainersVersion}"
+	testImplementation "org.testcontainers:testcontainers-junit-jupiter:${testcontainersVersion}"
+	testImplementation "org.testcontainers:testcontainers-postgresql:${testcontainersVersion}"
+	testImplementation "com.redis:testcontainers-redis:${redisTestContainer}"
+	// junit
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:${junitVersion}"
+	// apache commons
+	implementation "org.apache.commons:commons-pool2:${apacheCommonVersion}"
+}
+
+// spotless: for code formating
 spotless {
 	// optional: limit format enforcement to just the files changed by this feature branch
-	ratchetFrom 'origin/master'
+	ratchetFrom "origin/master"
 
-	format 'misc', {
+	format "misc", {
 		// define the files to apply `misc` to
-		target '*.gradle', '.gitattributes', '.gitignore'
+		target "*.gradle", ".gitattributes", ".gitignore"
 
 		// define the steps to apply to those files
 		trimTrailingWhitespace()
@@ -78,13 +115,13 @@ spotless {
 		endWithNewline()
 	}
 	java {
-		target 'src/*/java/**/*.java'
+		target "src/*/java/**/*.java"
 
 		// google-java-format places annotations-with-parameters on their own
 		// line by default, which is what we want for validated DTOs.
 		// (Palantir Java Format would wrap constructors more aggressively,
 		// but as of 2.68.0 it does not support JDK 26's javac internals.)
-		googleJavaFormat('1.28.0').aosp().reflowLongStrings().skipJavadocFormatting()
+		googleJavaFormat("1.28.0").aosp().reflowLongStrings().skipJavadocFormatting()
 
 		// NOTE: formatAnnotations() is intentionally disabled.
 		// It rewrites declaration annotations as type-use annotations and
@@ -92,12 +129,12 @@ spotless {
 		// as the field, which is unreadable in request DTOs.
 
 		removeUnusedImports()
-		importOrder('java', 'javax', 'jakarta', 'org', 'com', '')
+		importOrder("java", "javax", "jakarta", "org", "com", "")
 		trimTrailingWhitespace()
 		endWithNewline()
 	}
 }
 
-tasks.named('test') {
+tasks.named("test") {
 	useJUnitPlatform()
 }
