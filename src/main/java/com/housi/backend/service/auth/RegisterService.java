@@ -1,6 +1,6 @@
 package com.housi.backend.service.auth;
 
-import com.housi.backend.request.auth.RegisterRequest;
+import com.housi.backend.request.api.v1.RegisterRequest;
 
 public interface RegisterService {
     void register(RegisterRequest input) throws Exception;

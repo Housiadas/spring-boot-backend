@@ -15,8 +15,8 @@ import com.housi.backend.entity.Permission;
 import com.housi.backend.entity.Role;
 import com.housi.backend.repository.PermissionRepository;
 import com.housi.backend.repository.RoleRepository;
-import com.housi.backend.request.admin.RoleRequest;
-import com.housi.backend.response.role.RoleResponse;
+import com.housi.backend.request.backoffice.v1.RoleRequest;
+import com.housi.backend.response.backoffice.v1.RoleResponse;
 import com.housi.backend.service.audit.AuditLogger;
 
 @Service
@@ -52,13 +52,13 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional
     public RoleResponse create(RoleRequest request) {
-        if (roleRepository.existsByName(request.getName())) {
+        if (roleRepository.existsByName(request.name())) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Role already exists: " + request.getName());
+                    HttpStatus.CONFLICT, "Role already exists: " + request.name());
         }
-        Role role = new Role(request.getName(), request.getDescription());
-        if (request.getPermissions() != null && !request.getPermissions().isEmpty()) {
-            role.setPermissions(resolvePermissions(request.getPermissions()));
+        Role role = new Role(request.name(), request.description());
+        if (request.permissions() != null && !request.permissions().isEmpty()) {
+            role.setPermissions(resolvePermissions(request.permissions()));
         }
         Role saved = roleRepository.save(role);
         auditLogger.roleCreated(saved.getName());
@@ -69,19 +69,19 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Transactional
     public RoleResponse update(UUID id, RoleRequest request) {
         Role role = requireRole(id);
-        if (PROTECTED_ROLES.contains(role.getName()) && !role.getName().equals(request.getName())) {
+        if (PROTECTED_ROLES.contains(role.getName()) && !role.getName().equals(request.name())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Cannot rename seeded role: " + role.getName());
         }
-        if (!role.getName().equals(request.getName())
-                && roleRepository.existsByName(request.getName())) {
+        if (!role.getName().equals(request.name())
+                && roleRepository.existsByName(request.name())) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Role already exists: " + request.getName());
+                    HttpStatus.CONFLICT, "Role already exists: " + request.name());
         }
-        role.setName(request.getName());
-        role.setDescription(request.getDescription());
-        if (request.getPermissions() != null) {
-            role.setPermissions(resolvePermissions(request.getPermissions()));
+        role.setName(request.name());
+        role.setDescription(request.description());
+        if (request.permissions() != null) {
+            role.setPermissions(resolvePermissions(request.permissions()));
         }
         Role saved = roleRepository.save(role);
         auditLogger.roleUpdated(saved.getName());

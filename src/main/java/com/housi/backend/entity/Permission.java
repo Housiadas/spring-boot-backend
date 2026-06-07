@@ -1,5 +1,7 @@
 package com.housi.backend.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
@@ -7,15 +9,22 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Entity
-@Table(name = "permissions")
-public class Permission implements GrantedAuthority {
+@Getter
+@Setter
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = Permission.TABLE_NAME)
+public class Permission implements GrantedAuthority, Serializable {
+    public static final String TABLE_NAME = "permissions";
+
+    @Serial
+    private static final long serialVersionUID = 2137607105408362080L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

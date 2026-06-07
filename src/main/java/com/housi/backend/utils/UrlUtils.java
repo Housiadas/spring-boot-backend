@@ -3,7 +3,7 @@ package com.housi.backend.utils;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import com.housi.backend.entity.base.BaseEntity;
+import com.housi.backend.entity.BaseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 

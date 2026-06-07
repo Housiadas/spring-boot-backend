@@ -1,9 +1,10 @@
 package com.housi.backend.entity;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,16 +14,26 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Entity
-@Table(name = "users")
-public class User implements UserDetails {
+@Getter
+@Setter
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = User.TABLE_NAME)
+public class User implements UserDetails, Serializable {
+    public static final String TABLE_NAME = "users";
+
+    @Serial
+    private static final long serialVersionUID = 2134607105408362080L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,13 +53,18 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @CreatedBy
+    @Column private String createdBy;
+    @LastModifiedBy
+    @Column private String updatedBy;
+
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Setter
     @ManyToMany(fetch = FetchType.LAZY)
@@ -69,7 +85,7 @@ public class User implements UserDetails {
     public User() {}
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return Stream.concat(
                         roles.stream(), roles.stream().flatMap(r -> r.getPermissions().stream()))
                 .collect(Collectors.toUnmodifiableSet());
@@ -81,7 +97,7 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
+    public @NonNull String getUsername() {
         return email;
     }
 

@@ -12,8 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Permission;
 import com.housi.backend.repository.PermissionRepository;
-import com.housi.backend.request.admin.PermissionRequest;
-import com.housi.backend.response.permission.PermissionResponse;
+import com.housi.backend.request.backoffice.v1.PermissionRequest;
+import com.housi.backend.response.backoffice.v1.PermissionResponse;
 import com.housi.backend.service.audit.AuditLogger;
 
 @Service
@@ -48,13 +48,13 @@ public class PermissionAdminServiceImpl implements PermissionAdminService {
     @Override
     @Transactional
     public PermissionResponse create(PermissionRequest request) {
-        if (permissionRepository.existsByName(request.getName())) {
+        if (permissionRepository.existsByName(request.name())) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Permission already exists: " + request.getName());
+                    HttpStatus.CONFLICT, "Permission already exists: " + request.name());
         }
         Permission saved =
                 permissionRepository.save(
-                        new Permission(request.getName(), request.getDescription()));
+                        new Permission(request.name(), request.description()));
         auditLogger.permissionCreated(saved.getName());
         return toResponse(saved);
     }
@@ -64,18 +64,18 @@ public class PermissionAdminServiceImpl implements PermissionAdminService {
     public PermissionResponse update(UUID id, PermissionRequest request) {
         Permission permission = require(id);
         if (PROTECTED_PERMISSIONS.contains(permission.getName())
-                && !permission.getName().equals(request.getName())) {
+                && !permission.getName().equals(request.name())) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Cannot rename seeded permission: " + permission.getName());
         }
-        if (!permission.getName().equals(request.getName())
-                && permissionRepository.existsByName(request.getName())) {
+        if (!permission.getName().equals(request.name())
+                && permissionRepository.existsByName(request.name())) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Permission already exists: " + request.getName());
+                    HttpStatus.CONFLICT, "Permission already exists: " + request.name());
         }
-        permission.setName(request.getName());
-        permission.setDescription(request.getDescription());
+        permission.setName(request.name());
+        permission.setDescription(request.description());
         Permission saved = permissionRepository.save(permission);
         auditLogger.permissionUpdated(saved.getName());
         return toResponse(saved);

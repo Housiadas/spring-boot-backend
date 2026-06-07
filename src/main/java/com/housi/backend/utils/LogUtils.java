@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 
-import com.housi.backend.entity.base.BaseEntity;
+import com.housi.backend.entity.BaseEntity;
 
 import lombok.experimental.UtilityClass;
 

@@ -10,9 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.constant.AppUrls;
-import com.housi.backend.request.admin.AssignPermissionsRequest;
-import com.housi.backend.request.admin.RoleRequest;
-import com.housi.backend.response.role.RoleResponse;
+import com.housi.backend.request.backoffice.v1.AssignPermissionsRequest;
+import com.housi.backend.request.backoffice.v1.RoleRequest;
+import com.housi.backend.response.backoffice.v1.RoleResponse;
 import com.housi.backend.service.role.RoleAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,6 +72,6 @@ public class RoleController {
     @PutMapping("/{id}/permissions")
     public RoleResponse replacePermissions(
             @PathVariable UUID id, @Valid @RequestBody AssignPermissionsRequest request) {
-        return roleAdminService.replacePermissions(id, request.getPermissions());
+        return roleAdminService.replacePermissions(id, request.permissions());
     }
 }

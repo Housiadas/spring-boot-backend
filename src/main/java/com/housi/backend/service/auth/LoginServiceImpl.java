@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.auth.LoginRequest;
-import com.housi.backend.response.auth.LoginResponse;
+import com.housi.backend.request.api.v1.LoginRequest;
+import com.housi.backend.response.api.v1.LoginResponse;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.security.JwtService;
 import com.housi.backend.service.security.LoginAttemptService;
@@ -44,7 +44,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        String email = request.getEmail();
+        String email = request.email();
 
         if (loginAttemptService.isBlocked(email)) {
             auditLogger.loginBlocked(email);
@@ -55,7 +55,7 @@ public class LoginServiceImpl implements LoginService {
 
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(email, request.password()));
         } catch (BadCredentialsException ex) {
             loginAttemptService.recordFailure(email);
             auditLogger.loginFailure(email, "bad_credentials");

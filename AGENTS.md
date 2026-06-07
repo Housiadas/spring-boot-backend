@@ -36,3 +36,5 @@
 - Use semantic versioning for the Gradle project. Each time you generate a new version, bump the PATCH section of the version number.
 - Generate the Docker Compose file to run all components used by the application.
 - Update README.md each time you generate a new version.
+@.agents/DESIGN.md
+@.agents/PROGRAMMING_PRINCIPLES.md

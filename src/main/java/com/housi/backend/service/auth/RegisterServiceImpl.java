@@ -13,7 +13,7 @@ import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.auth.RegisterRequest;
+import com.housi.backend.request.api.v1.RegisterRequest;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {
@@ -37,7 +37,7 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     @Transactional
     public void register(RegisterRequest input) throws Exception {
-        if (isEmailTaken(input.getEmail())) {
+        if (isEmailTaken(input.email())) {
             throw new Exception("Email already taken");
         }
         userRepository.save(buildNewUser(input));
@@ -68,10 +68,10 @@ public class RegisterServiceImpl implements RegisterService {
 
     private User buildNewUser(RegisterRequest input) {
         return new User(
-                input.getFirstName(),
-                input.getLastName(),
-                input.getEmail(),
-                passwordEncoder.encode(input.getPassword()),
+                input.firstName(),
+                input.lastName(),
+                input.email(),
+                passwordEncoder.encode(input.password()),
                 initialRoles());
     }
 }

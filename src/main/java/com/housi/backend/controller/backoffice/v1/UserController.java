@@ -8,8 +8,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.constant.AppUrls;
-import com.housi.backend.request.admin.AssignRolesRequest;
-import com.housi.backend.response.user.UserResponse;
+import com.housi.backend.request.backoffice.v1.AssignRolesRequest;
+import com.housi.backend.response.api.v1.UserResponse;
 import com.housi.backend.service.userrole.UserRoleAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +32,6 @@ public class UserController {
     @PutMapping("/{userId}/roles")
     public UserResponse replaceRoles(
             @PathVariable UUID userId, @Valid @RequestBody AssignRolesRequest request) {
-        return userRoleAdminService.replaceUserRoles(userId, request.getRoles());
+        return userRoleAdminService.replaceUserRoles(userId, request.roles());
     }
 }

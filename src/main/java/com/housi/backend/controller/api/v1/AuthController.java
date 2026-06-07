@@ -6,9 +6,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.housi.backend.request.auth.LoginRequest;
-import com.housi.backend.request.auth.RegisterRequest;
-import com.housi.backend.response.auth.LoginResponse;
+import com.housi.backend.request.api.v1.LoginRequest;
+import com.housi.backend.request.api.v1.RegisterRequest;
+import com.housi.backend.response.api.v1.LoginResponse;
 import com.housi.backend.service.auth.LoginService;
 import com.housi.backend.service.auth.RegisterService;
 

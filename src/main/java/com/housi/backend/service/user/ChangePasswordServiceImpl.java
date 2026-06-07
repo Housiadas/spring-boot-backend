@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.user.PasswordUpdateRequest;
+import com.housi.backend.request.api.v1.PasswordUpdateRequest;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
 
 @Service
@@ -32,23 +32,23 @@ public class ChangePasswordServiceImpl implements ChangePasswordService {
     public void updatePassword(PasswordUpdateRequest passwordUpdateRequest) {
         User user = findAuthenticatedUser.getAuthenticatedUser();
 
-        if (!isOldPasswordCorrect(user.getPassword(), passwordUpdateRequest.getOldPassword())) {
+        if (!isOldPasswordCorrect(user.getPassword(), passwordUpdateRequest.oldPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Current password is incorrect");
         }
 
         if (!isNewPasswordConfirmed(
-                passwordUpdateRequest.getNewPassword(), passwordUpdateRequest.getNewPassword2())) {
+                passwordUpdateRequest.newPassword(), passwordUpdateRequest.newPassword2())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New passwords do not match");
         }
 
         if (!isNewPasswordDifferent(
-                passwordUpdateRequest.getOldPassword(), passwordUpdateRequest.getNewPassword())) {
+                passwordUpdateRequest.oldPassword(), passwordUpdateRequest.newPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Old and new passwords must be different");
         }
 
-        user.setPassword(passwordEncoder.encode(passwordUpdateRequest.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(passwordUpdateRequest.newPassword()));
         userRepository.save(user);
     }
 

@@ -10,8 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.constant.AppUrls;
-import com.housi.backend.request.admin.PermissionRequest;
-import com.housi.backend.response.permission.PermissionResponse;
+import com.housi.backend.request.backoffice.v1.PermissionRequest;
+import com.housi.backend.response.backoffice.v1.PermissionResponse;
 import com.housi.backend.service.permission.PermissionAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;
