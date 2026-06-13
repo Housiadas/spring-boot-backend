@@ -13,7 +13,7 @@ import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.api.v1.RegisterRequest;
+import com.housi.backend.controller.request.v1.RegisterRequest;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {

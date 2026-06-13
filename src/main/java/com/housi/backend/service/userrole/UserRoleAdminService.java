@@ -3,7 +3,7 @@ package com.housi.backend.service.userrole;
 import java.util.Set;
 import java.util.UUID;
 
-import com.housi.backend.response.api.v1.UserResponse;
+import com.housi.backend.controller.response.v1.UserResponse;
 
 public interface UserRoleAdminService {
     UserResponse replaceUserRoles(UUID userId, Set<String> roleNames);

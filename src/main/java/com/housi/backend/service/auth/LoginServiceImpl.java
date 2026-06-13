@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
 import com.housi.backend.repository.UserRepository;
-import com.housi.backend.request.api.v1.LoginRequest;
-import com.housi.backend.response.api.v1.LoginResponse;
+import com.housi.backend.controller.request.v1.LoginRequest;
+import com.housi.backend.controller.response.v1.LoginResponse;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.security.JwtService;
 import com.housi.backend.service.security.LoginAttemptService;

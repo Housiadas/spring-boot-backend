@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
-import com.housi.backend.response.api.v1.UserResponse;
+import com.housi.backend.controller.response.v1.UserResponse;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
 
 @Service

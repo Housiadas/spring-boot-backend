@@ -12,8 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Permission;
 import com.housi.backend.repository.PermissionRepository;
-import com.housi.backend.request.backoffice.v1.PermissionRequest;
-import com.housi.backend.response.backoffice.v1.PermissionResponse;
+import com.housi.backend.controller.request.v1.PermissionRequest;
+import com.housi.backend.controller.response.v1.PermissionResponse;
 import com.housi.backend.service.audit.AuditLogger;
 
 @Service
