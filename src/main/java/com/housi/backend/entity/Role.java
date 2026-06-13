@@ -3,7 +3,6 @@ package com.housi.backend.entity;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -28,8 +27,7 @@ import lombok.Setter;
 public class Role implements GrantedAuthority, Serializable {
     public static final String TABLE_NAME = "roles";
 
-    @Serial
-    private static final long serialVersionUID = 2137607105408362080L;
+    @Serial private static final long serialVersionUID = 2137607105408362080L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,10 +42,8 @@ public class Role implements GrantedAuthority, Serializable {
     @Column(nullable = true, length = 255)
     private String description;
 
-    @CreatedBy
-    @Column private String createdBy;
-    @LastModifiedBy
-    @Column private String updatedBy;
+    @CreatedBy @Column private String createdBy;
+    @LastModifiedBy @Column private String updatedBy;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

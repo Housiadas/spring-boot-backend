@@ -1,4 +1,4 @@
-package com.housi.backend.controller.v1;
+package com.housi.backend.controller.v1.admin;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.housi.backend.constant.AppUrls;
+import com.housi.backend.controller.mappers.PermissionMapper;
 import com.housi.backend.controller.request.v1.PermissionRequest;
 import com.housi.backend.controller.response.v1.PermissionResponse;
 import com.housi.backend.service.permission.PermissionAdminService;
@@ -21,26 +22,29 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping(PermissionController.BASE_URL)
 public class PermissionController {
-    public static final String BASE_URL = AppUrls.V1_BACKOFFICE + "/permissions";
+    public static final String BASE_URL = AppUrls.V1_ADMIN + "/permissions";
 
     private final PermissionAdminService permissionAdminService;
+    private final PermissionMapper permissionMapper;
 
-    public PermissionController(PermissionAdminService permissionAdminService) {
+    public PermissionController(
+            PermissionAdminService permissionAdminService, PermissionMapper permissionMapper) {
         this.permissionAdminService = permissionAdminService;
+        this.permissionMapper = permissionMapper;
     }
 
     @Operation(summary = "List all permissions")
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping
     public List<PermissionResponse> getAll() {
-        return permissionAdminService.getAll();
+        return permissionMapper.toResponseList(permissionAdminService.getAll());
     }
 
     @Operation(summary = "Get permission by id")
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{id}")
     public PermissionResponse getById(@PathVariable UUID id) {
-        return permissionAdminService.getById(id);
+        return permissionMapper.toResponse(permissionAdminService.getById(id));
     }
 
     @Operation(summary = "Create a permission")
@@ -48,7 +52,8 @@ public class PermissionController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public PermissionResponse create(@Valid @RequestBody PermissionRequest request) {
-        return permissionAdminService.create(request);
+        return permissionMapper.toResponse(
+                permissionAdminService.create(request.name(), request.description()));
     }
 
     @Operation(summary = "Update a permission")
@@ -56,7 +61,8 @@ public class PermissionController {
     @PutMapping("/{id}")
     public PermissionResponse update(
             @PathVariable UUID id, @Valid @RequestBody PermissionRequest request) {
-        return permissionAdminService.update(id, request);
+        return permissionMapper.toResponse(
+                permissionAdminService.update(id, request.name(), request.description()));
     }
 
     @Operation(summary = "Delete a permission")

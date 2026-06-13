@@ -1,7 +1,5 @@
 package com.housi.backend.configuration;
 
-import com.housi.backend.constant.AppUrls;
-import com.housi.backend.controller.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -21,6 +19,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.housi.backend.constant.AppUrls;
+import com.housi.backend.enums.RoleEnum;
+import com.housi.backend.filter.JwtAuthenticationFilter;
 import com.housi.backend.repository.UserRepository;
 
 @Configuration
@@ -84,8 +85,8 @@ public class SecurityConfiguration {
                                         "/webjars/**",
                                         "/docs")
                                 .permitAll()
-                                .requestMatchers(AppUrls.V1_BACKOFFICE + "/**")
-                                .hasRole("ADMIN")
+                                .requestMatchers(AppUrls.V1_ADMIN + "/**")
+                                .hasRole(RoleEnum.ADMIN.name())
                                 .anyRequest()
                                 .authenticated());
 

@@ -23,8 +23,7 @@ import lombok.Setter;
 public class Permission implements GrantedAuthority, Serializable {
     public static final String TABLE_NAME = "permissions";
 
-    @Serial
-    private static final long serialVersionUID = 2137607105408362080L;
+    @Serial private static final long serialVersionUID = 2137607105408362080L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

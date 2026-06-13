@@ -1,12 +1,13 @@
 package com.housi.backend.controller.v1;
 
-import com.housi.backend.constant.AppUrls;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.housi.backend.constant.AppUrls;
+import com.housi.backend.controller.mappers.UserMapper;
 import com.housi.backend.controller.request.v1.PasswordUpdateRequest;
 import com.housi.backend.controller.response.v1.UserResponse;
 import com.housi.backend.service.user.ChangePasswordService;
@@ -25,14 +26,17 @@ public class UserController {
     private final GetCurrentUserService getCurrentUserService;
     private final DeleteUserService deleteUserService;
     private final ChangePasswordService changePasswordService;
+    private final UserMapper userMapper;
 
     public UserController(
             GetCurrentUserService getCurrentUserService,
             DeleteUserService deleteUserService,
-            ChangePasswordService changePasswordService) {
+            ChangePasswordService changePasswordService,
+            UserMapper userMapper) {
         this.getCurrentUserService = getCurrentUserService;
         this.deleteUserService = deleteUserService;
         this.changePasswordService = changePasswordService;
+        this.userMapper = userMapper;
     }
 
     @Operation(summary = "Current user information", description = "Get current user details")
@@ -40,7 +44,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/current")
     public UserResponse getUserInfo() {
-        return this.getCurrentUserService.getUserInfo();
+        return userMapper.toResponse(getCurrentUserService.getCurrentUser());
     }
 
     @Operation(summary = "Delete user", description = "Delete current user account")
@@ -55,8 +59,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('user:write')")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/change/password")
-    public void passwordUpdate(@Valid @RequestBody PasswordUpdateRequest passwordUpdateRequest)
-            throws Exception {
-        this.changePasswordService.updatePassword(passwordUpdateRequest);
+    public void passwordUpdate(@Valid @RequestBody PasswordUpdateRequest request) {
+        this.changePasswordService.updatePassword(
+                request.oldPassword(), request.newPassword(), request.newPassword2());
     }
 }

@@ -32,8 +32,7 @@ import lombok.Setter;
 public class User implements UserDetails, Serializable {
     public static final String TABLE_NAME = "users";
 
-    @Serial
-    private static final long serialVersionUID = 2134607105408362080L;
+    @Serial private static final long serialVersionUID = 2134607105408362080L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -53,10 +52,8 @@ public class User implements UserDetails, Serializable {
     @Column(nullable = false)
     private String password;
 
-    @CreatedBy
-    @Column private String createdBy;
-    @LastModifiedBy
-    @Column private String updatedBy;
+    @CreatedBy @Column private String createdBy;
+    @LastModifiedBy @Column private String updatedBy;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

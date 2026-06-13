@@ -37,19 +37,3 @@ CREATE TABLE company
     created_at            timestamp    NOT NULL DEFAULT current_timestamp,
     updated_at            timestamp    NOT NULL DEFAULT current_timestamp
 );
-
-CREATE TABLE api_key
-(
-    id         uuid PRIMARY KEY,
-    company_id uuid       NOT NULL REFERENCES company (id),
-    name       varchar(255) NOT NULL,
-    key        varchar(255) NOT NULL UNIQUE,
-    is_active  boolean      NOT NULL DEFAULT FALSE,
-
-    created_by varchar(255),
-    updated_by varchar(255),
-
-    created_at timestamp    NOT NULL DEFAULT current_timestamp,
-    updated_at timestamp    NOT NULL DEFAULT current_timestamp
-);
-CREATE INDEX api_key_key_is_active_idx ON api_key (key, is_active);

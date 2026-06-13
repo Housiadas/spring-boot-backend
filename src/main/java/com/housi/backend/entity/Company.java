@@ -6,11 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
 
@@ -20,10 +16,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.housi.backend.enums.UserRolesEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -77,10 +69,8 @@ public class Company implements Serializable {
     @Column private BigDecimal addressLatitude;
     @Column private BigDecimal addressLongitude;
 
-    @CreatedBy
-    @Column private String createdBy;
-    @LastModifiedBy
-    @Column private String updatedBy;
+    @CreatedBy @Column private String createdBy;
+    @LastModifiedBy @Column private String updatedBy;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

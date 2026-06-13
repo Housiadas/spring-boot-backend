@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.housi.backend.controller.filter.HttpRequestLoggingFilter;
+import com.housi.backend.filter.HttpRequestLoggingFilter;
 import jakarta.servlet.FilterChain;
 
 import org.junit.jupiter.api.AfterEach;

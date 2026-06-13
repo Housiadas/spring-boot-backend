@@ -1,16 +1,16 @@
 package com.housi.backend.controller.mappers;
 
-import com.housi.backend.entity.Company;
-import com.housi.backend.controller.mappers.base.ManagementBaseMapper;
-import com.housi.backend.controller.request.v1.CreateCompanyManagementRequest;
-import com.housi.backend.controller.request.v1.UpdateCompanyManagementRequest;
-import com.housi.backend.controller.response.v1.CompanyManagementResponse;
+import java.util.List;
+
 import org.mapstruct.Mapper;
 
+import com.housi.backend.controller.response.v1.CompanyResponse;
+import com.housi.backend.entity.Company;
+
 @Mapper(componentModel = "spring")
-public interface CompanyMapper
-    extends ManagementBaseMapper<
-            Company,
-            CreateCompanyManagementRequest,
-            UpdateCompanyManagementRequest,
-            CompanyManagementResponse> {}
+public interface CompanyMapper {
+
+    CompanyResponse toResponse(Company company);
+
+    List<CompanyResponse> toResponseList(List<Company> companies);
+}

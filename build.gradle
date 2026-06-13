@@ -67,14 +67,14 @@ dependencies {
 	testImplementation "io.cucumber:cucumber-junit:${cucumberVersion}"
 	testImplementation "io.cucumber:cucumber-spring:${cucumberVersion}"
 	testImplementation "org.junit.vintage:junit-vintage-engine:${junitVintage}"
+	//Lombok Dependencies (must be declared before MapStruct so its processor runs first)
+	implementation "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	//MapStruct Dependencies
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
-	//Lombok Dependencies
-	implementation "org.projectlombok:lombok:${lombokVersion}"
-	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 	// Resilience4j (circuit braker)
 	implementation "io.github.resilience4j:resilience4j-spring-boot4:${resilienceSpring4Version}"
 	implementation "io.github.resilience4j:resilience4j-reactor:${resilienceSpring4Version}"

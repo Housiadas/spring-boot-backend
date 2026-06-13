@@ -1,19 +1,97 @@
 package com.housi.backend.service.permission;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
-import com.housi.backend.controller.request.v1.PermissionRequest;
-import com.housi.backend.controller.response.v1.PermissionResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-public interface PermissionAdminService {
-    List<PermissionResponse> getAll();
+import com.housi.backend.entity.Permission;
+import com.housi.backend.repository.PermissionRepository;
+import com.housi.backend.service.audit.AuditLogger;
 
-    PermissionResponse getById(UUID id);
+@Service
+public class PermissionAdminService {
 
-    PermissionResponse create(PermissionRequest request);
+    static final Set<String> PROTECTED_PERMISSIONS =
+            Set.of("user:read", "user:write", "user:delete", "admin:read", "admin:write");
 
-    PermissionResponse update(UUID id, PermissionRequest request);
+    private final PermissionRepository permissionRepository;
+    private final AuditLogger auditLogger;
 
-    void delete(UUID id);
+    public PermissionAdminService(
+            PermissionRepository permissionRepository, AuditLogger auditLogger) {
+        this.permissionRepository = permissionRepository;
+        this.auditLogger = auditLogger;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Permission> getAll() {
+        return StreamSupport.stream(permissionRepository.findAll().spliterator(), false).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Permission getById(UUID id) {
+        return require(id);
+    }
+
+    @Transactional
+    public Permission create(String name, String description) {
+        if (permissionRepository.existsByName(name)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Permission already exists: " + name);
+        }
+        Permission saved = permissionRepository.save(new Permission(name, description));
+        auditLogger.permissionCreated(saved.getName());
+        return saved;
+    }
+
+    @Transactional
+    public Permission update(UUID id, String name, String description) {
+        Permission permission = require(id);
+        if (PROTECTED_PERMISSIONS.contains(permission.getName())
+                && !permission.getName().equals(name)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot rename seeded permission: " + permission.getName());
+        }
+        if (!permission.getName().equals(name) && permissionRepository.existsByName(name)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Permission already exists: " + name);
+        }
+        permission.setName(name);
+        permission.setDescription(description);
+        Permission saved = permissionRepository.save(permission);
+        auditLogger.permissionUpdated(saved.getName());
+        return saved;
+    }
+
+    @Transactional
+    public void delete(UUID id) {
+        Permission permission = require(id);
+        if (PROTECTED_PERMISSIONS.contains(permission.getName())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot delete seeded permission: " + permission.getName());
+        }
+        if (permissionRepository.countRolesWithPermission(id) > 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Permission is still attached to a role");
+        }
+        auditLogger.permissionDeleted(permission.getName());
+        permissionRepository.delete(permission);
+    }
+
+    private Permission require(UUID id) {
+        return permissionRepository
+                .findById(id)
+                .orElseThrow(
+                        () ->
+                                new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND, "Permission not found"));
+    }
 }

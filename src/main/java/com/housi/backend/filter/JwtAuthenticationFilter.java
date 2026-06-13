@@ -1,4 +1,4 @@
-package com.housi.backend.controller.filter;
+package com.housi.backend.filter;
 
 import java.io.IOException;
 
