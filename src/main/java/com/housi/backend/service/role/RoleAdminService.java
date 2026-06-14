@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Permission;
 import com.housi.backend.entity.Role;
+import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.enums.RoleEnum;
+import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.repository.PermissionRepository;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.service.audit.AuditLogger;
@@ -20,19 +23,23 @@ import com.housi.backend.service.audit.AuditLogger;
 @Service
 public class RoleAdminService {
 
-    static final Set<String> PROTECTED_ROLES = Set.of(RoleEnum.ADMIN.getName(), RoleEnum.USER.getName());
+    static final Set<String> PROTECTED_ROLES =
+            Set.of(RoleEnum.ADMIN.getName(), RoleEnum.USER.getName());
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final AuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     public RoleAdminService(
             RoleRepository roleRepository,
             PermissionRepository permissionRepository,
-            AuditLogger auditLogger) {
+            AuditLogger auditLogger,
+            ApplicationEventPublisher eventPublisher) {
         this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +63,9 @@ public class RoleAdminService {
         }
         Role saved = roleRepository.save(role);
         auditLogger.roleCreated(saved.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(), "Role", saved.getName(), EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -76,6 +86,9 @@ public class RoleAdminService {
         }
         Role saved = roleRepository.save(role);
         auditLogger.roleUpdated(saved.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(), "Role", saved.getName(), EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -91,6 +104,9 @@ public class RoleAdminService {
                     HttpStatus.CONFLICT, "Role is still assigned to users");
         }
         auditLogger.roleDeleted(role.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        role.getId(), "Role", role.getName(), EntityTransactionAuditEnum.DELETE));
         roleRepository.delete(role);
     }
 
@@ -101,6 +117,13 @@ public class RoleAdminService {
                 permissionNames == null ? new HashSet<>() : resolvePermissions(permissionNames));
         Role saved = roleRepository.save(role);
         auditLogger.rolePermissionsChanged(saved.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(),
+                        "Role",
+                        saved.getName(),
+                        EntityTransactionAuditEnum.UPDATE,
+                        "permissions changed"));
         return saved;
     }
 

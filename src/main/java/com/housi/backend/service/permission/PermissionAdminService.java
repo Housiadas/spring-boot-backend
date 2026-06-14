@@ -5,12 +5,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Permission;
+import com.housi.backend.enums.EntityTransactionAuditEnum;
+import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.repository.PermissionRepository;
 import com.housi.backend.service.audit.AuditLogger;
 
@@ -22,11 +25,15 @@ public class PermissionAdminService {
 
     private final PermissionRepository permissionRepository;
     private final AuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     public PermissionAdminService(
-            PermissionRepository permissionRepository, AuditLogger auditLogger) {
+            PermissionRepository permissionRepository,
+            AuditLogger auditLogger,
+            ApplicationEventPublisher eventPublisher) {
         this.permissionRepository = permissionRepository;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -47,6 +54,12 @@ public class PermissionAdminService {
         }
         Permission saved = permissionRepository.save(new Permission(name, description));
         auditLogger.permissionCreated(saved.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(),
+                        "Permission",
+                        saved.getName(),
+                        EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -67,6 +80,12 @@ public class PermissionAdminService {
         permission.setDescription(description);
         Permission saved = permissionRepository.save(permission);
         auditLogger.permissionUpdated(saved.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(),
+                        "Permission",
+                        saved.getName(),
+                        EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -83,6 +102,12 @@ public class PermissionAdminService {
                     HttpStatus.CONFLICT, "Permission is still attached to a role");
         }
         auditLogger.permissionDeleted(permission.getName());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        permission.getId(),
+                        "Permission",
+                        permission.getName(),
+                        EntityTransactionAuditEnum.DELETE));
         permissionRepository.delete(permission);
     }
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
+import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.enums.RoleEnum;
+import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
@@ -25,16 +28,19 @@ public class UserAdminService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserAdminService(
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
-            AuditLogger auditLogger) {
+            AuditLogger auditLogger,
+            ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<User> getAll() {
@@ -62,6 +68,9 @@ public class UserAdminService {
                         Set.of(requireRole(RoleEnum.USER.getName())));
         userRepository.save(user);
         auditLogger.userAdminCreated(user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        user.getId(), "User", user.getEmail(), EntityTransactionAuditEnum.CREATE));
         return requireUser(user.getId());
     }
 
@@ -76,18 +85,26 @@ public class UserAdminService {
         user.setEmail(email);
         userRepository.save(user);
         auditLogger.userAdminUpdated(user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        user.getId(), "User", user.getEmail(), EntityTransactionAuditEnum.UPDATE));
         return requireUser(id);
     }
 
     @Transactional
     public void delete(UUID id) {
         User user = requireUser(id);
-        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getName().equals(RoleEnum.ADMIN.getName()));
+        boolean isAdmin =
+                user.getRoles().stream()
+                        .anyMatch(r -> r.getName().equals(RoleEnum.ADMIN.getName()));
         if (isAdmin && userRepository.countAdminUsers() <= 1) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "Cannot delete the last admin user");
         }
         auditLogger.userAdminDeleted(user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        user.getId(), "User", user.getEmail(), EntityTransactionAuditEnum.DELETE));
         userRepository.delete(user);
     }
 

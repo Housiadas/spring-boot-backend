@@ -54,10 +54,10 @@ public class LoginService {
         } catch (BadCredentialsException ex) {
             loginAttemptService.recordFailure(email);
             auditLogger.loginFailure(email, "bad_credentials");
-            throw ex;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         } catch (AuthenticationException ex) {
             auditLogger.loginFailure(email, ex.getClass().getSimpleName());
-            throw ex;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication failed");
         }
 
         loginAttemptService.reset(email);

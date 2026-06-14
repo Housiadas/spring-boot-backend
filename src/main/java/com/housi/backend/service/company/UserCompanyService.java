@@ -3,6 +3,7 @@ package com.housi.backend.service.company;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,8 @@ import com.housi.backend.controller.request.v1.CreateCompanyRequest;
 import com.housi.backend.controller.request.v1.UpdateCompanyRequest;
 import com.housi.backend.entity.Company;
 import com.housi.backend.entity.User;
+import com.housi.backend.enums.EntityTransactionAuditEnum;
+import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.repository.CompanyRepository;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
@@ -22,14 +25,17 @@ public class UserCompanyService {
     private final CompanyRepository companyRepository;
     private final FindAuthenticatedUser findAuthenticatedUser;
     private final AuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserCompanyService(
             CompanyRepository companyRepository,
             FindAuthenticatedUser findAuthenticatedUser,
-            AuditLogger auditLogger) {
+            AuditLogger auditLogger,
+            ApplicationEventPublisher eventPublisher) {
         this.companyRepository = companyRepository;
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
@@ -61,6 +67,12 @@ public class UserCompanyService {
         Company company = buildFromRequest(new Company(), request);
         Company saved = companyRepository.save(company);
         auditLogger.companyUserRegistered(saved.getSlug(), user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -83,6 +95,12 @@ public class UserCompanyService {
         applyUpdate(company, request);
         Company saved = companyRepository.save(company);
         auditLogger.companyUserUpdated(saved.getSlug(), user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -92,6 +110,12 @@ public class UserCompanyService {
         Company company = require(id);
         verifyOwnership(company, user);
         auditLogger.companyUserDeleted(company.getSlug(), user.getEmail());
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        company.getId(),
+                        "Company",
+                        company.getSlug(),
+                        EntityTransactionAuditEnum.DELETE));
         companyRepository.delete(company);
     }
 

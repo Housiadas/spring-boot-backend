@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
+import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.enums.RoleEnum;
+import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
@@ -23,12 +26,17 @@ public class UserRoleAdminService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AuditLogger auditLogger;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserRoleAdminService(
-            UserRepository userRepository, RoleRepository roleRepository, AuditLogger auditLogger) {
+            UserRepository userRepository,
+            RoleRepository roleRepository,
+            AuditLogger auditLogger,
+            ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.auditLogger = auditLogger;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -67,6 +75,13 @@ public class UserRoleAdminService {
         user.setRoles(resolved);
         userRepository.save(user);
         auditLogger.userRolesChanged(String.join(",", before), String.join(",", roleNames));
+        eventPublisher.publishEvent(
+                new EntityAuditEvent(
+                        user.getId(),
+                        "User",
+                        user.getEmail(),
+                        EntityTransactionAuditEnum.UPDATE,
+                        "roles changed"));
         return userRepository.findByIdWithRolesAndPermissions(userId).orElseThrow();
     }
 }
