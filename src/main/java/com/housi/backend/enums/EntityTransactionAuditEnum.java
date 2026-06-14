@@ -6,10 +6,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum ServiceOperationEnum {
-    CREATING("creating"),
-    UPDATING("updating"),
-    DELETING("deleting");
+public enum EntityTransactionAuditEnum {
+    CREATE("created"),
+    UPDATE("updated"),
+    DELETE("deleted"),
+    UNKNOWN("unknown");
 
     private final String name;
 }
