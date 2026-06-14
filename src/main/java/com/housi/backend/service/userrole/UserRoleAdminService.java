@@ -12,15 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.EntityTransactionAuditEnum;
-import com.housi.backend.enums.RoleEnum;
 import com.housi.backend.event.EntityAuditEvent;
 import com.housi.backend.exception.BadRequestException;
-import com.housi.backend.exception.ConflictException;
 import com.housi.backend.exception.ProblemType;
 import com.housi.backend.exception.ResourceNotFoundException;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
+import com.housi.backend.service.user.LastAdminGuard;
 
 @Service
 public class UserRoleAdminService {
@@ -29,16 +28,19 @@ public class UserRoleAdminService {
     private final RoleRepository roleRepository;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
+    private final LastAdminGuard lastAdminGuard;
 
     public UserRoleAdminService(
             UserRepository userRepository,
             RoleRepository roleRepository,
             AuditLogger auditLogger,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            LastAdminGuard lastAdminGuard) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
+        this.lastAdminGuard = lastAdminGuard;
     }
 
     @Transactional
@@ -60,11 +62,7 @@ public class UserRoleAdminService {
             resolved.add(r);
         }
 
-        boolean wasAdmin = before.contains(RoleEnum.ADMIN.getName());
-        boolean willBeAdmin = roleNames.contains(RoleEnum.ADMIN.getName());
-        if (wasAdmin && !willBeAdmin && userRepository.countAdminUsers() <= 1) {
-            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot remove ADMIN role from the last admin user.");
-        }
+        lastAdminGuard.assertAdminRoleRemovalAllowed(user, roleNames);
 
         user.setRoles(resolved);
         userRepository.save(user);

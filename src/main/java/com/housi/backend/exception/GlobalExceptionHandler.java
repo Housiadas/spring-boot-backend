@@ -119,7 +119,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         final String cause = NestedExceptionUtils.getMostSpecificCause(ex).getLocalizedMessage();
         final String errorDetail = extractPersistenceDetails(cause);
-        return buildProblemDetail(BAD_REQUEST, ProblemType.DUPLICATE_EMAIL, errorDetail);
+        return buildProblemDetail(BAD_REQUEST, detectConstraintProblemType(cause), errorDetail);
     }
 
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -183,6 +183,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return problemDetail;
+    }
+
+    private ProblemType detectConstraintProblemType(final String cause) {
+        final String lower = cause.toLowerCase();
+        if (lower.contains("slug")) return ProblemType.DUPLICATE_SLUG;
+        if (lower.contains("federal_tax_id") || lower.contains("tax")) return ProblemType.DUPLICATE_FEDERAL_TAX_ID;
+        if (lower.contains("email")) return ProblemType.DUPLICATE_EMAIL;
+        return ProblemType.VALIDATION_FAILED;
     }
 
     private String extractPersistenceDetails(final String cause) {

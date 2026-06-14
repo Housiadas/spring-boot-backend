@@ -20,12 +20,6 @@ public class RootException extends RuntimeException {
     private final ProblemType problemType;
     private final List<ApiErrorDetails> errors = new ArrayList<>();
 
-    public RootException(@NonNull HttpStatus httpStatus, @NonNull ProblemType problemType) {
-        super();
-        this.httpStatus = httpStatus;
-        this.problemType = problemType;
-    }
-
     public RootException(
             @NonNull HttpStatus httpStatus,
             @NonNull ProblemType problemType,

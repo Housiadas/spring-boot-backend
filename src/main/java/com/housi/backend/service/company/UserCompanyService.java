@@ -13,7 +13,6 @@ import com.housi.backend.entity.Company;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.event.EntityAuditEvent;
-import com.housi.backend.exception.ConflictException;
 import com.housi.backend.exception.NotAllowedException;
 import com.housi.backend.exception.ProblemType;
 import com.housi.backend.exception.ResourceNotFoundException;
@@ -28,16 +27,19 @@ public class UserCompanyService {
     private final FindAuthenticatedUser findAuthenticatedUser;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
+    private final CompanyConflictGuard conflictGuard;
 
     public UserCompanyService(
             CompanyRepository companyRepository,
             FindAuthenticatedUser findAuthenticatedUser,
             AuditLogger auditLogger,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            CompanyConflictGuard conflictGuard) {
         this.companyRepository = companyRepository;
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
+        this.conflictGuard = conflictGuard;
     }
 
     @Transactional(readOnly = true)
@@ -57,13 +59,8 @@ public class UserCompanyService {
     @Transactional
     public Company register(CreateCompanyRequest request) {
         User user = findAuthenticatedUser.getAuthenticatedUser();
-        if (companyRepository.existsBySlug(request.slug())) {
-            throw new ConflictException(ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + request.slug());
-        }
-        if (companyRepository.existsByFederalTaxId(request.federalTaxId())) {
-            throw new ConflictException(ProblemType.DUPLICATE_FEDERAL_TAX_ID,
-                    "Company with this federal tax ID already exists: " + request.federalTaxId());
-        }
+        conflictGuard.assertSlugAvailable(request.slug());
+        conflictGuard.assertFederalTaxIdAvailable(request.federalTaxId());
         Company company = buildFromRequest(new Company(), request);
         Company saved = companyRepository.save(company);
         auditLogger.companyUserRegistered(saved.getSlug(), user.getEmail());
@@ -78,14 +75,8 @@ public class UserCompanyService {
         User user = findAuthenticatedUser.getAuthenticatedUser();
         Company company = require(id);
         verifyOwnership(company, user);
-        if (!request.slug().equals(company.getSlug()) && companyRepository.existsBySlug(request.slug())) {
-            throw new ConflictException(ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + request.slug());
-        }
-        if (!request.federalTaxId().equals(company.getFederalTaxId())
-                && companyRepository.existsByFederalTaxId(request.federalTaxId())) {
-            throw new ConflictException(ProblemType.DUPLICATE_FEDERAL_TAX_ID,
-                    "Company with this federal tax ID already exists: " + request.federalTaxId());
-        }
+        conflictGuard.assertSlugAvailable(request.slug(), company.getSlug());
+        conflictGuard.assertFederalTaxIdAvailable(request.federalTaxId(), company.getFederalTaxId());
         applyUpdate(company, request);
         Company saved = companyRepository.save(company);
         auditLogger.companyUserUpdated(saved.getSlug(), user.getEmail());

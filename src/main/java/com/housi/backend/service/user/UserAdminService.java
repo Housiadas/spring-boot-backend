@@ -32,18 +32,21 @@ public class UserAdminService {
     private final PasswordEncoder passwordEncoder;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
+    private final LastAdminGuard lastAdminGuard;
 
     public UserAdminService(
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordEncoder passwordEncoder,
             AuditLogger auditLogger,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            LastAdminGuard lastAdminGuard) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
+        this.lastAdminGuard = lastAdminGuard;
     }
 
     public List<User> getAll() {
@@ -97,12 +100,7 @@ public class UserAdminService {
     @Transactional
     public void delete(UUID id) {
         User user = requireUser(id);
-        boolean isAdmin =
-                user.getRoles().stream()
-                        .anyMatch(r -> r.getName().equals(RoleEnum.ADMIN.getName()));
-        if (isAdmin && userRepository.countAdminUsers() <= 1) {
-            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot delete the last admin user.");
-        }
+        lastAdminGuard.assertCanDelete(user);
         auditLogger.userAdminDeleted(user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(

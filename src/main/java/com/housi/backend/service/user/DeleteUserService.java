@@ -3,9 +3,6 @@ package com.housi.backend.service.user;
 import org.springframework.stereotype.Service;
 
 import com.housi.backend.entity.User;
-import com.housi.backend.enums.RoleEnum;
-import com.housi.backend.exception.NotAllowedException;
-import com.housi.backend.exception.ProblemType;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
 
@@ -14,33 +11,20 @@ public class DeleteUserService {
 
     private final UserRepository userRepository;
     private final FindAuthenticatedUser findAuthenticatedUser;
+    private final LastAdminGuard lastAdminGuard;
 
     public DeleteUserService(
-            UserRepository userRepository, FindAuthenticatedUser findAuthenticatedUser) {
+            UserRepository userRepository,
+            FindAuthenticatedUser findAuthenticatedUser,
+            LastAdminGuard lastAdminGuard) {
         this.userRepository = userRepository;
         this.findAuthenticatedUser = findAuthenticatedUser;
+        this.lastAdminGuard = lastAdminGuard;
     }
 
     public void deleteUser() {
         User user = findAuthenticatedUser.getAuthenticatedUser();
-
-        if (isLastAdmin(user)) {
-            throw new NotAllowedException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot delete the last admin account.");
-        }
-
+        lastAdminGuard.assertCanDelete(user);
         userRepository.delete(user);
-    }
-
-    private boolean isLastAdmin(User user) {
-        boolean isAdmin =
-                user.getRoles().stream()
-                        .anyMatch(role -> RoleEnum.ADMIN.getName().equals(role.getName()));
-
-        if (isAdmin) {
-            long adminCount = userRepository.countAdminUsers();
-            return adminCount <= 1;
-        }
-
-        return false;
     }
 }
