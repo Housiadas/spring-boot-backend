@@ -16,7 +16,12 @@ import com.housi.backend.controller.request.v1.UpdateCompanyRequest;
 import com.housi.backend.controller.response.v1.CompanyResponse;
 import com.housi.backend.service.company.UserCompanyService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "User Companies", description = "Register and manage your companies")
@@ -42,6 +47,13 @@ public class UserCompanyController {
     }
 
     @Operation(summary = "Get my company by id")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Company not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('user:read')")
     @GetMapping("/{id}")
     public CompanyResponse getMyCompanyById(@PathVariable UUID id) {
@@ -49,6 +61,14 @@ public class UserCompanyController {
     }
 
     @Operation(summary = "Register a company")
+    @ApiResponse(responseCode = "201", description = "Company created successfully")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('user:write')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -57,6 +77,20 @@ public class UserCompanyController {
     }
 
     @Operation(summary = "Update my company")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Company not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('user:write')")
     @PutMapping("/{id}")
     public CompanyResponse update(
@@ -65,6 +99,13 @@ public class UserCompanyController {
     }
 
     @Operation(summary = "Delete my company")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Company not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('user:write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")

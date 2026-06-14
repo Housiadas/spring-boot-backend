@@ -12,7 +12,12 @@ import com.housi.backend.controller.response.v1.LoginResponse;
 import com.housi.backend.service.auth.LoginService;
 import com.housi.backend.service.auth.RegisterService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -28,9 +33,17 @@ public class AuthController {
     }
 
     @Operation(summary = "Register a user", description = "Create new user in database")
+    @ApiResponse(responseCode = "201", description = "User registered successfully")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
-    public void register(@Valid @RequestBody RegisterRequest request) throws Exception {
+    public void register(@Valid @RequestBody RegisterRequest request) {
         this.registerService.register(
                 request.firstName(), request.lastName(), request.email(), request.password());
     }
@@ -38,6 +51,14 @@ public class AuthController {
     @Operation(
             summary = "Login a user",
             description = "submit email & password to authenticate user")
+    @ApiResponse(responseCode = "200", description = "Login successful")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed or invalid credentials",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public LoginResponse login(@Valid @RequestBody LoginRequest request) {

@@ -6,16 +6,18 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.enums.RoleEnum;
 import com.housi.backend.event.EntityAuditEvent;
+import com.housi.backend.exception.BadRequestException;
+import com.housi.backend.exception.ConflictException;
+import com.housi.backend.exception.ProblemType;
+import com.housi.backend.exception.ResourceNotFoundException;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
@@ -44,10 +46,7 @@ public class UserRoleAdminService {
         User user =
                 userRepository
                         .findByIdWithRolesAndPermissions(userId)
-                        .orElseThrow(
-                                () ->
-                                        new ResponseStatusException(
-                                                HttpStatus.NOT_FOUND, "User not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException(ProblemType.USER_NOT_FOUND, "User with id '" + userId + "' not found."));
 
         Set<String> before =
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
@@ -57,19 +56,14 @@ public class UserRoleAdminService {
             Role r =
                     roleRepository
                             .findByName(name)
-                            .orElseThrow(
-                                    () ->
-                                            new ResponseStatusException(
-                                                    HttpStatus.BAD_REQUEST,
-                                                    "Unknown role: " + name));
+                            .orElseThrow(() -> new BadRequestException(ProblemType.UNKNOWN_ROLE, "Unknown role: " + name));
             resolved.add(r);
         }
 
         boolean wasAdmin = before.contains(RoleEnum.ADMIN.getName());
         boolean willBeAdmin = roleNames.contains(RoleEnum.ADMIN.getName());
         if (wasAdmin && !willBeAdmin && userRepository.countAdminUsers() <= 1) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Cannot remove ROLE_ADMIN from the last admin");
+            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot remove ADMIN role from the last admin user.");
         }
 
         user.setRoles(resolved);

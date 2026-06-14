@@ -16,7 +16,12 @@ import com.housi.backend.controller.request.v1.RoleRequest;
 import com.housi.backend.controller.response.v1.RoleResponse;
 import com.housi.backend.service.role.RoleAdminService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Admin Roles", description = "Manage RBAC roles")
@@ -41,6 +46,13 @@ public class RoleController {
     }
 
     @Operation(summary = "Get role by id")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Role not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{id}")
     public RoleResponse getById(@PathVariable UUID id) {
@@ -48,6 +60,14 @@ public class RoleController {
     }
 
     @Operation(summary = "Create a role")
+    @ApiResponse(responseCode = "201", description = "Role created successfully")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -58,6 +78,20 @@ public class RoleController {
     }
 
     @Operation(summary = "Update a role")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Role not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @PutMapping("/{id}")
     public RoleResponse update(@PathVariable UUID id, @Valid @RequestBody RoleRequest request) {
@@ -67,6 +101,13 @@ public class RoleController {
     }
 
     @Operation(summary = "Delete a role")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Role not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
@@ -75,6 +116,20 @@ public class RoleController {
     }
 
     @Operation(summary = "Replace the permissions of a role")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Role not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @PutMapping("/{id}/permissions")
     public RoleResponse replacePermissions(

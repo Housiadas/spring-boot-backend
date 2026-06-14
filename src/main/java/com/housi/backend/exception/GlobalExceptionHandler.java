@@ -1,7 +1,6 @@
 package com.housi.backend.exception;
 
 import static com.housi.backend.constant.AppConstants.API_DEFAULT_ERROR_MESSAGE;
-import static com.housi.backend.constant.AppConstants.API_DEFAULT_REQUEST_FAILED_MESSAGE;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -43,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // Process @Valid
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             @NonNull final MethodArgumentNotValidException ex,
@@ -53,7 +51,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atInfo().setMessage("Method argument validation exception").setCause(ex).log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
-
         for (final ObjectError err : ex.getBindingResult().getAllErrors()) {
             errors.add(
                     ApiErrorDetails.builder()
@@ -63,16 +60,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(BAD_REQUEST)
-                .body(this.buildProblemDetail(BAD_REQUEST, "Validation failed.", errors));
+                .body(buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors));
     }
 
-    // Process controller method parameter validations e.g. @RequestParam, @PathVariable etc.
     @Override
     protected ResponseEntity<Object> handleHandlerMethodValidationException(
-            final @NonNull HandlerMethodValidationException ex,
-            final @NonNull HttpHeaders headers,
-            final @NonNull HttpStatusCode status,
-            final @NonNull WebRequest request) {
+            @NonNull final HandlerMethodValidationException ex,
+            @NonNull final HttpHeaders headers,
+            @NonNull final HttpStatusCode status,
+            @NonNull final WebRequest request) {
         log.atInfo().setMessage("Handler method validation exception").setCause(ex).log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
@@ -90,33 +86,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(BAD_REQUEST)
-                .body(this.buildProblemDetail(BAD_REQUEST, "Validation failed.", errors));
+                .body(buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors));
     }
 
-    // Process @Validated
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
     public ProblemDetail handleJakartaConstraintViolationException(
-            final jakarta.validation.ConstraintViolationException ex, final WebRequest request) {
-        log.atInfo()
-                .setMessage("Constraint validation exception")
-                .addKeyValue("exception", ex)
-                .log();
+            final jakarta.validation.ConstraintViolationException ex) {
+        log.atInfo().setMessage("Constraint validation exception").setCause(ex).log();
 
         final List<ApiErrorDetails> errors = new ArrayList<>();
         for (final var violation : ex.getConstraintViolations()) {
             errors.add(
                     ApiErrorDetails.builder()
-                            // Get specific parameter name
-                            .pointer(
-                                    ((PathImpl) violation.getPropertyPath())
-                                            .getLeafNode()
-                                            .getName())
+                            .pointer(((PathImpl) violation.getPropertyPath()).getLeafNode().getName())
                             .reason(violation.getMessage())
                             .build());
         }
 
-        return this.buildProblemDetail(BAD_REQUEST, "Validation failed.", errors);
+        return buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors);
     }
 
     @ResponseStatus(BAD_REQUEST)
@@ -126,101 +114,85 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         BatchUpdateException.class,
         jakarta.persistence.PersistenceException.class,
     })
-    public ProblemDetail handlePersistenceException(final Exception ex, final WebRequest request) {
+    public ProblemDetail handlePersistenceException(final Exception ex) {
         log.atInfo().setMessage("Persistence exception").setCause(ex).log();
 
         final String cause = NestedExceptionUtils.getMostSpecificCause(ex).getLocalizedMessage();
-        final String errorDetail = this.extractPersistenceDetails(cause);
-        return this.buildProblemDetail(BAD_REQUEST, errorDetail);
+        final String errorDetail = extractPersistenceDetails(cause);
+        return buildProblemDetail(BAD_REQUEST, ProblemType.DUPLICATE_EMAIL, errorDetail);
     }
 
-    /*
-     *  When authorizing user at controller or service layer using @PreAuthorize it throws
-     * AccessDeniedException, and it's a developer's responsibility to catch it
-     * */
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
-    public ProblemDetail handleAccessDeniedException(final Exception ex, final WebRequest request) {
+    public ProblemDetail handleAccessDeniedException(final AccessDeniedException ex) {
         log.atInfo().setMessage("Access denied exception").setCause(ex).log();
 
-        return this.buildProblemDetail(HttpStatus.FORBIDDEN, null);
+        return buildProblemDetail(HttpStatus.FORBIDDEN, ProblemType.ACCESS_DENIED, "Access denied.");
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ProblemDetail handleEmptyResultDataAccessException(
-            final EmptyResultDataAccessException ex, final WebRequest request) {
+    public ProblemDetail handleEmptyResultDataAccessException(final EmptyResultDataAccessException ex) {
         log.atInfo().setMessage("Empty result data access exception").setCause(ex).log();
 
-        return this.buildProblemDetail(HttpStatus.NOT_FOUND, "no record found for this id");
+        return buildProblemDetail(HttpStatus.NOT_FOUND, ProblemType.RESOURCE_NOT_FOUND, "No record found for this id.");
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(LazyInitializationException.class)
-    public ProblemDetail handleLazyInitialization(
-            final LazyInitializationException ex, final WebRequest request) {
-
+    public ProblemDetail handleLazyInitialization(final LazyInitializationException ex) {
         log.atWarn().setMessage("Lazy initialization exception").setCause(ex).log();
 
-        return this.buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, API_DEFAULT_ERROR_MESSAGE);
+        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ProblemType.INTERNAL_ERROR, API_DEFAULT_ERROR_MESSAGE);
     }
 
-    /*
-     * Catch API defined exceptions
-     *  */
     @ExceptionHandler(RootException.class)
-    public ResponseEntity<ProblemDetail> rootException(final RootException ex) {
+    public ResponseEntity<ProblemDetail> handleRootException(final RootException ex) {
         log.atInfo().setMessage("Root exception").setCause(ex).log();
 
         final ProblemDetail problemDetail =
-                this.buildProblemDetail(
-                        ex.getHttpStatus(), API_DEFAULT_REQUEST_FAILED_MESSAGE, ex.getErrors());
+                buildProblemDetail(ex.getHttpStatus(), ex.getProblemType(), ex.getMessage(), ex.getErrors());
         return ResponseEntity.status(ex.getHttpStatus()).body(problemDetail);
     }
 
-    /*
-     * Fallback, catch all unknown API exceptions
-     *  */
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Throwable.class)
-    public ProblemDetail handleAllExceptions(final Throwable ex, final WebRequest request) {
+    public ProblemDetail handleAllExceptions(final Throwable ex) {
         log.atWarn().setMessage("Unhandled exception").setCause(ex).log();
 
-        return this.buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, API_DEFAULT_ERROR_MESSAGE);
+        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ProblemType.INTERNAL_ERROR, API_DEFAULT_ERROR_MESSAGE);
     }
 
-    private ProblemDetail buildProblemDetail(final HttpStatus status, final String detail) {
-        return this.buildProblemDetail(status, detail, emptyList());
+    private ProblemDetail buildProblemDetail(HttpStatus status, ProblemType problemType, String detail) {
+        return buildProblemDetail(status, problemType, detail, emptyList());
     }
 
     private ProblemDetail buildProblemDetail(
-            final HttpStatus status, final String detail, final List<ApiErrorDetails> errors) {
+            HttpStatus status,
+            ProblemType problemType,
+            String detail,
+            List<ApiErrorDetails> errors) {
 
         final ProblemDetail problemDetail =
                 ProblemDetail.forStatusAndDetail(status, StringUtils.normalizeSpace(detail));
+        problemDetail.setType(problemType.getType());
+        problemDetail.setTitle(problemType.getTitle());
+        problemDetail.setProperty("timestamp", Instant.now());
         if (!CollectionUtils.isEmpty(errors)) {
             problemDetail.setProperty("errors", errors);
         }
-
-        problemDetail.setProperty("timestamp", Instant.now());
 
         return problemDetail;
     }
 
     private String extractPersistenceDetails(final String cause) {
-
         String details = API_DEFAULT_ERROR_MESSAGE;
 
-        // Example: ERROR: duplicate key value violates unique constraint "company_slug_key"
-        // Detail:
-        // Key (slug)=(bl8lo0d) already exists.
         if (cause.contains("Detail")) {
             final List<String> matchList = new ArrayList<>();
-            // find database values between "()"
             final Pattern pattern = Pattern.compile("\\((.*?)\\)");
             final Matcher matcher = pattern.matcher(cause);
 
-            // Creates list ["slug", "bl8lo0d"]
             while (matcher.find()) {
                 matchList.add(matcher.group(1));
             }
@@ -228,10 +200,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             if (matchList.size() == 2) {
                 final String key = matchList.get(0);
                 final String value = matchList.get(1);
-                // Gets the message after the last ")"
                 final String message = cause.substring(cause.lastIndexOf(")") + 1);
-
-                // return errorMessage: slug 'bl8lo0d'  already exists.
                 details = format("%s '%s' %s", key, value, message);
             }
         }

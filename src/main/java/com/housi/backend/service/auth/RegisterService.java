@@ -3,15 +3,16 @@ package com.housi.backend.service.auth;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.RoleEnum;
+import com.housi.backend.exception.ConflictException;
+import com.housi.backend.exception.InternalServerErrorException;
+import com.housi.backend.exception.ProblemType;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 
@@ -32,10 +33,9 @@ public class RegisterService {
     }
 
     @Transactional
-    public void register(String firstName, String lastName, String email, String password)
-            throws Exception {
+    public void register(String firstName, String lastName, String email, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new Exception("Email already taken");
+            throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
         userRepository.save(
                 new User(
@@ -58,10 +58,6 @@ public class RegisterService {
     private Role requireRole(String name) {
         return roleRepository
                 .findByName(name)
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.INTERNAL_SERVER_ERROR,
-                                        "Required role missing: " + name));
+                .orElseThrow(() -> new InternalServerErrorException("Required role missing: " + name));
     }
 }

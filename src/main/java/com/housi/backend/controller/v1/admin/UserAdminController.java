@@ -17,7 +17,12 @@ import com.housi.backend.controller.response.v1.UserResponse;
 import com.housi.backend.service.user.UserAdminService;
 import com.housi.backend.service.userrole.UserRoleAdminService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Admin Users", description = "Manage users")
@@ -47,6 +52,13 @@ public class UserAdminController {
     }
 
     @Operation(summary = "Get user by id")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{id}")
     public UserResponse getById(@PathVariable UUID id) {
@@ -54,6 +66,14 @@ public class UserAdminController {
     }
 
     @Operation(summary = "Create a user")
+    @ApiResponse(responseCode = "201", description = "User created successfully")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -67,6 +87,20 @@ public class UserAdminController {
     }
 
     @Operation(summary = "Update a user")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @PutMapping("/{id}")
     public UserResponse update(@PathVariable UUID id, @Valid @RequestBody UserRequest request) {
@@ -76,6 +110,13 @@ public class UserAdminController {
     }
 
     @Operation(summary = "Delete a user")
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
@@ -84,6 +125,20 @@ public class UserAdminController {
     }
 
     @Operation(summary = "Replace the roles of a user")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "User not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @PutMapping("/{id}/roles")
     public UserResponse replaceRoles(

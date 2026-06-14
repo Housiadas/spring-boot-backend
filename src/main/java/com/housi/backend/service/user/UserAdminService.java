@@ -5,17 +5,20 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.Role;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.enums.RoleEnum;
 import com.housi.backend.event.EntityAuditEvent;
+import com.housi.backend.exception.BadRequestException;
+import com.housi.backend.exception.ConflictException;
+import com.housi.backend.exception.InternalServerErrorException;
+import com.housi.backend.exception.ProblemType;
+import com.housi.backend.exception.ResourceNotFoundException;
 import com.housi.backend.repository.RoleRepository;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
@@ -54,10 +57,10 @@ public class UserAdminService {
     @Transactional
     public User create(String firstName, String lastName, String email, String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
+            throw new BadRequestException(ProblemType.PASSWORD_REQUIRED, "Password is required.");
         }
         if (userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken");
+            throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
         User user =
                 new User(
@@ -78,7 +81,7 @@ public class UserAdminService {
     public User update(UUID id, String firstName, String lastName, String email) {
         User user = requireUser(id);
         if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken");
+            throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
         user.setFirstName(firstName);
         user.setLastName(lastName);
@@ -98,8 +101,7 @@ public class UserAdminService {
                 user.getRoles().stream()
                         .anyMatch(r -> r.getName().equals(RoleEnum.ADMIN.getName()));
         if (isAdmin && userRepository.countAdminUsers() <= 1) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Cannot delete the last admin user");
+            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot delete the last admin user.");
         }
         auditLogger.userAdminDeleted(user.getEmail());
         eventPublisher.publishEvent(
@@ -111,17 +113,12 @@ public class UserAdminService {
     private User requireUser(UUID id) {
         return userRepository
                 .findByIdWithRolesAndPermissions(id)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.USER_NOT_FOUND, "User with id '" + id + "' not found."));
     }
 
     private Role requireRole(String name) {
         return roleRepository
                 .findByName(name)
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.INTERNAL_SERVER_ERROR,
-                                        "Required role missing: " + name));
+                .orElseThrow(() -> new InternalServerErrorException("Required role missing: " + name));
     }
 }

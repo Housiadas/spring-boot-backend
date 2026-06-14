@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.controller.request.v1.CreateCompanyRequest;
 import com.housi.backend.controller.request.v1.UpdateCompanyRequest;
@@ -15,6 +13,10 @@ import com.housi.backend.entity.Company;
 import com.housi.backend.entity.User;
 import com.housi.backend.enums.EntityTransactionAuditEnum;
 import com.housi.backend.event.EntityAuditEvent;
+import com.housi.backend.exception.ConflictException;
+import com.housi.backend.exception.NotAllowedException;
+import com.housi.backend.exception.ProblemType;
+import com.housi.backend.exception.ResourceNotFoundException;
 import com.housi.backend.repository.CompanyRepository;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.auth.FindAuthenticatedUser;
@@ -56,12 +58,10 @@ public class UserCompanyService {
     public Company register(CreateCompanyRequest request) {
         User user = findAuthenticatedUser.getAuthenticatedUser();
         if (companyRepository.existsBySlug(request.slug())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Company slug already exists: " + request.slug());
+            throw new ConflictException(ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + request.slug());
         }
         if (companyRepository.existsByFederalTaxId(request.federalTaxId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ConflictException(ProblemType.DUPLICATE_FEDERAL_TAX_ID,
                     "Company with this federal tax ID already exists: " + request.federalTaxId());
         }
         Company company = buildFromRequest(new Company(), request);
@@ -69,10 +69,7 @@ public class UserCompanyService {
         auditLogger.companyUserRegistered(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(),
-                        "Company",
-                        saved.getSlug(),
-                        EntityTransactionAuditEnum.CREATE));
+                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -81,15 +78,12 @@ public class UserCompanyService {
         User user = findAuthenticatedUser.getAuthenticatedUser();
         Company company = require(id);
         verifyOwnership(company, user);
-        if (!request.slug().equals(company.getSlug())
-                && companyRepository.existsBySlug(request.slug())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "Company slug already exists: " + request.slug());
+        if (!request.slug().equals(company.getSlug()) && companyRepository.existsBySlug(request.slug())) {
+            throw new ConflictException(ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + request.slug());
         }
         if (!request.federalTaxId().equals(company.getFederalTaxId())
                 && companyRepository.existsByFederalTaxId(request.federalTaxId())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ConflictException(ProblemType.DUPLICATE_FEDERAL_TAX_ID,
                     "Company with this federal tax ID already exists: " + request.federalTaxId());
         }
         applyUpdate(company, request);
@@ -97,10 +91,7 @@ public class UserCompanyService {
         auditLogger.companyUserUpdated(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(),
-                        "Company",
-                        saved.getSlug(),
-                        EntityTransactionAuditEnum.UPDATE));
+                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -112,25 +103,19 @@ public class UserCompanyService {
         auditLogger.companyUserDeleted(company.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        company.getId(),
-                        "Company",
-                        company.getSlug(),
-                        EntityTransactionAuditEnum.DELETE));
+                        company.getId(), "Company", company.getSlug(), EntityTransactionAuditEnum.DELETE));
         companyRepository.delete(company);
     }
 
     private Company require(UUID id) {
         return companyRepository
                 .findById(id)
-                .orElseThrow(
-                        () ->
-                                new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND, "Company not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.COMPANY_NOT_FOUND, "Company with id '" + id + "' not found."));
     }
 
     private void verifyOwnership(Company company, User user) {
         if (!user.getEmail().equals(company.getCreatedBy())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not own this company");
+            throw new NotAllowedException(ProblemType.ACCESS_DENIED, "You do not own this company.");
         }
     }
 
@@ -143,22 +128,15 @@ public class UserCompanyService {
         if (request.phone() != null) company.setPhone(request.phone());
         if (request.email() != null) company.setEmail(request.email());
         if (request.addressStreet() != null) company.setAddressStreet(request.addressStreet());
-        if (request.addressStreetNumber() != null)
-            company.setAddressStreetNumber(request.addressStreetNumber());
-        if (request.addressComplement() != null)
-            company.setAddressComplement(request.addressComplement());
-        if (request.addressCityDistrict() != null)
-            company.setAddressCityDistrict(request.addressCityDistrict());
-        if (request.addressPostCode() != null)
-            company.setAddressPostCode(request.addressPostCode());
+        if (request.addressStreetNumber() != null) company.setAddressStreetNumber(request.addressStreetNumber());
+        if (request.addressComplement() != null) company.setAddressComplement(request.addressComplement());
+        if (request.addressCityDistrict() != null) company.setAddressCityDistrict(request.addressCityDistrict());
+        if (request.addressPostCode() != null) company.setAddressPostCode(request.addressPostCode());
         if (request.addressCity() != null) company.setAddressCity(request.addressCity());
-        if (request.addressStateCode() != null)
-            company.setAddressStateCode(request.addressStateCode());
+        if (request.addressStateCode() != null) company.setAddressStateCode(request.addressStateCode());
         if (request.addressCountry() != null) company.setAddressCountry(request.addressCountry());
-        if (request.addressLatitude() != null)
-            company.setAddressLatitude(request.addressLatitude());
-        if (request.addressLongitude() != null)
-            company.setAddressLongitude(request.addressLongitude());
+        if (request.addressLatitude() != null) company.setAddressLatitude(request.addressLatitude());
+        if (request.addressLongitude() != null) company.setAddressLongitude(request.addressLongitude());
     }
 
     private Company buildFromRequest(Company company, CreateCompanyRequest request) {

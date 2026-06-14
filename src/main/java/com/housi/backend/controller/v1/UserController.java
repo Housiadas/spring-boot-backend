@@ -14,7 +14,12 @@ import com.housi.backend.service.user.ChangePasswordService;
 import com.housi.backend.service.user.DeleteUserService;
 import com.housi.backend.service.user.GetCurrentUserService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "User Endpoints", description = "Operations related to info about current user")
@@ -56,6 +61,13 @@ public class UserController {
     }
 
     @Operation(summary = "Password update", description = "Change user password after verification")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed or old password mismatch",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('user:write')")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/change/password")

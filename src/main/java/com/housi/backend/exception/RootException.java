@@ -17,15 +17,21 @@ public class RootException extends RuntimeException {
     @Serial private static final long serialVersionUID = 6378336966214073013L;
 
     private final HttpStatus httpStatus;
+    private final ProblemType problemType;
     private final List<ApiErrorDetails> errors = new ArrayList<>();
 
-    public RootException(@NonNull final HttpStatus httpStatus) {
+    public RootException(@NonNull HttpStatus httpStatus, @NonNull ProblemType problemType) {
         super();
         this.httpStatus = httpStatus;
+        this.problemType = problemType;
     }
 
-    public RootException(@NonNull final HttpStatus httpStatus, final String message) {
+    public RootException(
+            @NonNull HttpStatus httpStatus,
+            @NonNull ProblemType problemType,
+            String message) {
         super(message);
         this.httpStatus = httpStatus;
+        this.problemType = problemType;
     }
 }

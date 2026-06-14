@@ -2,7 +2,6 @@ package com.housi.backend.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,9 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.housi.backend.constant.AppUrls;
@@ -31,15 +28,15 @@ public class SecurityConfiguration {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final AccessDeniedHandler accessDeniedHandler;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     public SecurityConfiguration(
             UserRepository userRepository,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            AccessDeniedHandler accessDeniedHandler) {
+            JwtAuthenticationEntryPoint authenticationEntryPoint) {
         this.userRepository = userRepository;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Bean
@@ -59,16 +56,6 @@ public class SecurityConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, ex) -> {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.setHeader("WWW-Authenticate", "");
-            response.getWriter().write("{\"error\": \"Unauthorized access\"}");
-        };
     }
 
     @Bean
@@ -95,8 +82,7 @@ public class SecurityConfiguration {
         http.exceptionHandling(
                 exceptionHandling ->
                         exceptionHandling
-                                .authenticationEntryPoint(authenticationEntryPoint())
-                                .accessDeniedHandler(accessDeniedHandler));
+                                .authenticationEntryPoint(authenticationEntryPoint));
 
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

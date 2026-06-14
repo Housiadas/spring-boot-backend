@@ -15,7 +15,12 @@ import com.housi.backend.controller.request.v1.PermissionRequest;
 import com.housi.backend.controller.response.v1.PermissionResponse;
 import com.housi.backend.service.permission.PermissionAdminService;
 
+import com.housi.backend.controller.response.shared.ApiProblemDetail;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Admin Permissions", description = "Manage RBAC permissions")
@@ -41,6 +46,13 @@ public class PermissionController {
     }
 
     @Operation(summary = "Get permission by id")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Permission not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:read')")
     @GetMapping("/{id}")
     public PermissionResponse getById(@PathVariable UUID id) {
@@ -48,6 +60,14 @@ public class PermissionController {
     }
 
     @Operation(summary = "Create a permission")
+    @ApiResponse(responseCode = "201", description = "Permission created successfully")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -57,6 +77,20 @@ public class PermissionController {
     }
 
     @Operation(summary = "Update a permission")
+    @ApiResponse(
+            responseCode = "400",
+            description = "Validation failed",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
+    @ApiResponse(
+            responseCode = "404",
+            description = "Permission not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @PutMapping("/{id}")
     public PermissionResponse update(
@@ -66,6 +100,13 @@ public class PermissionController {
     }
 
     @Operation(summary = "Delete a permission")
+    @ApiResponse(
+            responseCode = "404",
+            description = "Permission not found",
+            content =
+                    @Content(
+                            mediaType = "application/problem+json",
+                            schema = @Schema(implementation = ApiProblemDetail.class)))
     @PreAuthorize("hasAuthority('admin:write')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")

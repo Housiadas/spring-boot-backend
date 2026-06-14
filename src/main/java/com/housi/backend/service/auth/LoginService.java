@@ -2,16 +2,17 @@ package com.housi.backend.service.auth;
 
 import java.util.HashMap;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.housi.backend.entity.User;
+import com.housi.backend.exception.NotAuthorizedException;
+import com.housi.backend.exception.ProblemType;
+import com.housi.backend.exception.TooManyRequestsException;
 import com.housi.backend.repository.UserRepository;
 import com.housi.backend.service.audit.AuditLogger;
 import com.housi.backend.service.security.JwtService;
@@ -43,9 +44,7 @@ public class LoginService {
     public String login(String email, String password) {
         if (loginAttemptService.isBlocked(email)) {
             auditLogger.loginBlocked(email);
-            throw new ResponseStatusException(
-                    HttpStatus.TOO_MANY_REQUESTS,
-                    "Too many failed login attempts. Try again later.");
+            throw new TooManyRequestsException("Too many failed login attempts. Try again later.");
         }
 
         try {
@@ -54,10 +53,10 @@ public class LoginService {
         } catch (BadCredentialsException ex) {
             loginAttemptService.recordFailure(email);
             auditLogger.loginFailure(email, "bad_credentials");
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Invalid email or password.");
         } catch (AuthenticationException ex) {
             auditLogger.loginFailure(email, ex.getClass().getSimpleName());
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication failed");
+            throw new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Authentication failed.");
         }
 
         loginAttemptService.reset(email);
@@ -66,7 +65,7 @@ public class LoginService {
                 userRepository
                         .findByEmail(email)
                         .orElseThrow(
-                                () -> new IllegalArgumentException("Invalid email or password"));
+                                () -> new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Invalid email or password."));
 
         String jwtToken = jwtService.generateToken(new HashMap<>(), user);
         auditLogger.loginSuccess(email);
