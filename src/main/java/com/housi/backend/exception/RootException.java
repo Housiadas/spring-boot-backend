@@ -7,7 +7,7 @@ import java.util.List;
 import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 
-import com.housi.backend.response.shared.ApiErrorDetails;
+import com.housi.backend.controller.response.shared.ApiErrorDetails;
 
 import lombok.Getter;
 

@@ -1,9 +1,23 @@
 package com.housi.backend.service.webhook;
 
+import com.housi.backend.clients.http.WebhookSiteHttpClient;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-public interface WebhookSiteService {
-    Mono<String> post(Object request);
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class WebhookSiteService {
 
-    Mono<String> postWithCircuitBreaker(Object request);
+    private final WebhookSiteHttpClient client;
+
+    public Mono<String> post(final Object request) {
+        return this.client.post(request).map(response -> response);
+    }
+
+    public Mono<String> postWithCircuitBreaker(final Object request) {
+        return this.client.postWithCircuitBreaker(request).map(response -> response);
+    }
 }

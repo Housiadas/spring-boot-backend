@@ -3,39 +3,34 @@ package com.housi.backend.entity;
 import static org.apache.commons.lang3.StringUtils.getDigits;
 
 import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import com.housi.backend.entity.base.BaseEntity;
-import com.housi.backend.enums.UserRolesEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = Company.TABLE_NAME)
-public class Company extends BaseEntity {
-    public static final String TABLE_NAME = "company";
+public class Company implements Serializable {
+    public static final String TABLE_NAME = "companies";
 
     @Serial private static final long serialVersionUID = 2137607105409362080L;
 
@@ -74,18 +69,19 @@ public class Company extends BaseEntity {
     @Column private BigDecimal addressLatitude;
     @Column private BigDecimal addressLongitude;
 
-    @Column private Boolean isPlatform;
-    @Column private Boolean isBackOffice;
-    @Column private Boolean isManagement;
-    @Column private Boolean isInternal;
+    @CreatedBy @Column private String createdBy;
+    @LastModifiedBy @Column private String updatedBy;
+
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     public Company(final UUID id) {
         this.id = id;
-    }
-
-    @Override
-    public UUID getId() {
-        return this.id;
     }
 
     @PrePersist
@@ -136,14 +132,6 @@ public class Company extends BaseEntity {
                 + this.addressLatitude
                 + ", addressLongitude="
                 + this.addressLongitude
-                + ", isPlatform="
-                + this.isPlatform
-                + ", isBackOffice="
-                + this.isBackOffice
-                + ", isManagement="
-                + this.isManagement
-                + ", isInternal="
-                + this.isInternal
                 + "', createdBy="
                 + this.getCreatedBy()
                 + ", updatedBy="
@@ -173,24 +161,5 @@ public class Company extends BaseEntity {
 
     public boolean is(final String slug) {
         return StringUtils.isNotBlank(this.slug) && this.slug.equals(slug);
-    }
-
-    public Collection<GrantedAuthority> getGrantedAuthoritiesFromCompanyType() {
-        return this.getApiRolesFromCompanyType().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
-                .collect(Collectors.toSet());
-    }
-
-    private List<UserRolesEnum> getApiRolesFromCompanyType() {
-        final List<UserRolesEnum> roles = new ArrayList<>();
-
-        if (Boolean.TRUE.equals(this.isInternal)) {
-            roles.add(UserRolesEnum.INTERNAL_API_USER);
-        }
-        if (Boolean.TRUE.equals(this.isPlatform)) {
-            roles.add(UserRolesEnum.PLATFORM_API_USER);
-        }
-
-        return roles;
     }
 }

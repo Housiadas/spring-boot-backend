@@ -90,12 +90,87 @@ public class AuditLogger {
                 .log();
     }
 
+    public void userAdminCreated(String email) {
+        log.atInfo()
+                .setMessage("admin.user.created")
+                .addKeyValue("event", "admin.user.created")
+                .addKeyValue("email", email)
+                .log();
+    }
+
+    public void userAdminUpdated(String email) {
+        log.atInfo()
+                .setMessage("admin.user.updated")
+                .addKeyValue("event", "admin.user.updated")
+                .addKeyValue("email", email)
+                .log();
+    }
+
+    public void userAdminDeleted(String email) {
+        log.atInfo()
+                .setMessage("admin.user.deleted")
+                .addKeyValue("event", "admin.user.deleted")
+                .addKeyValue("email", email)
+                .log();
+    }
+
     public void userRolesChanged(String before, String after) {
         log.atInfo()
                 .setMessage("rbac.user.roles.changed")
                 .addKeyValue("event", "rbac.user.roles.changed")
                 .addKeyValue("before", before)
                 .addKeyValue("after", after)
+                .log();
+    }
+
+    public void companyAdminCreated(String slug) {
+        log.atInfo()
+                .setMessage("admin.company.created")
+                .addKeyValue("event", "admin.company.created")
+                .addKeyValue("slug", slug)
+                .log();
+    }
+
+    public void companyAdminUpdated(String slug) {
+        log.atInfo()
+                .setMessage("admin.company.updated")
+                .addKeyValue("event", "admin.company.updated")
+                .addKeyValue("slug", slug)
+                .log();
+    }
+
+    public void companyAdminDeleted(String slug) {
+        log.atInfo()
+                .setMessage("admin.company.deleted")
+                .addKeyValue("event", "admin.company.deleted")
+                .addKeyValue("slug", slug)
+                .log();
+    }
+
+    public void companyUserRegistered(String slug, String email) {
+        log.atInfo()
+                .setMessage("user.company.registered")
+                .addKeyValue("event", "user.company.registered")
+                .addKeyValue("slug", slug)
+                .addKeyValue("email", email)
+                .log();
+    }
+
+    public void companyUserUpdated(String slug, String email) {
+        log.atInfo()
+                .setMessage("user.company.updated")
+                .addKeyValue("event", "user.company.updated")
+                .addKeyValue("slug", slug)
+                .addKeyValue("email", email)
+                .log();
+    }
+
+    public void companyUserDeleted(String slug, String email) {
+        log.atInfo()
+                .setMessage("user.company.deleted")
+                .addKeyValue("event", "user.company.deleted")
+                .addKeyValue("slug", slug)
+                .addKeyValue("email", email)
                 .log();
     }
 }

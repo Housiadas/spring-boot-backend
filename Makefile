@@ -7,7 +7,7 @@ FLYWAY = docker run --rm --network=host \
 	flyway/flyway:latest \
 	-url=$(DB_URL) -user=$(DB_USER) -password=$(DB_PASSWORD)
 
-lint:
+format:
 	docker run --rm -v "$(PWD)":/app -w /app eclipse-temurin:26-jdk ./gradlew spotlessApply
 
 test:

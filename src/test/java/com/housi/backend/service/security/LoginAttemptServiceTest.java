@@ -25,12 +25,12 @@ class LoginAttemptServiceTest {
     @Mock StringRedisTemplate redis;
     @Mock ValueOperations<String, String> valueOps;
 
-    LoginAttemptServiceImpl service;
+    LoginAttemptService service;
 
     @BeforeEach
     void setUp() {
         when(redis.opsForValue()).thenReturn(valueOps);
-        service = new LoginAttemptServiceImpl(redis, 5, 15);
+        service = new LoginAttemptService(redis, 5, 15);
     }
 
     @Test
