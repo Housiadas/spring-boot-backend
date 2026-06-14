@@ -67,12 +67,12 @@ class HttpRequestLoggingFilterTest {
         Map<String, Object> kv = toMap(event.getKeyValuePairs());
         assertThat(kv)
                 .containsEntry("event", "http.request")
-                .containsEntry("method", "GET")
-                .containsEntry("path", "/api/v1/users/current")
-                .containsEntry("query", "verbose=true")
-                .containsEntry("status", 200)
-                .containsEntry("remote", "10.0.0.1")
-                .containsEntry("userAgent", "JUnit/1.0")
+                .containsEntry("request.method", "GET")
+                .containsEntry("request.path", "/api/v1/users/current")
+                .containsEntry("request.query", "verbose=true")
+                .containsEntry("response.status", 200)
+                .containsEntry("remote.addr", "10.0.0.1")
+                .containsEntry("user.agent", "JUnit/1.0")
                 .containsKey("durationMs");
         assertThat((Long) kv.get("durationMs")).isGreaterThanOrEqualTo(0L);
     }

@@ -1,4 +1,4 @@
-package com.housi.backend.security;
+package com.housi.backend.integration;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
