@@ -18,9 +18,9 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housi.backend.TestcontainersConfiguration;
-import com.housi.backend.repository.AuditRepository;
-import com.housi.backend.repository.RoleRepository;
-import com.housi.backend.repository.UserRepository;
+import com.housi.backend.infrastructure.persistence.repository.AuditRepository;
+import com.housi.backend.infrastructure.persistence.repository.RoleRepository;
+import com.housi.backend.infrastructure.persistence.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -50,7 +50,7 @@ class AuditAdminIntegrationTest {
                 .forEach(
                         r -> {
                             if (!SEEDED_ROLES.contains(r.getName())) {
-                                roleRepository.delete(r);
+                                roleRepository.deleteById(r.getId());
                             }
                         });
         register("audit-admin@example.com", "Pass12345");

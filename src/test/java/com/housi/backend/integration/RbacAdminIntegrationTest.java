@@ -21,9 +21,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housi.backend.TestcontainersConfiguration;
-import com.housi.backend.entity.Role;
-import com.housi.backend.repository.RoleRepository;
-import com.housi.backend.repository.UserRepository;
+import com.housi.backend.domain.model.Role;
+import com.housi.backend.infrastructure.persistence.repository.RoleRepository;
+import com.housi.backend.infrastructure.persistence.repository.UserRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -51,7 +51,7 @@ class RbacAdminIntegrationTest {
                 .forEach(
                         r -> {
                             if (!SEEDED_ROLES.contains(r.getName())) {
-                                roleRepository.delete(r);
+                                roleRepository.deleteById(r.getId());
                             }
                         });
         register("rbac-admin@example.com", "Pass12345");
