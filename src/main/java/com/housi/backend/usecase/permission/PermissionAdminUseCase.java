@@ -53,7 +53,7 @@ public class PermissionAdminUseCase {
             throw new ConflictException(
                     ProblemType.DUPLICATE_PERMISSION, "Permission already exists: " + name);
         }
-        Permission saved = permissionPort.save(new Permission(name, description));
+        Permission saved = permissionPort.save(Permission.builder().name(name).description(description).build());
         auditLogger.permissionCreated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -77,9 +77,7 @@ public class PermissionAdminUseCase {
             throw new ConflictException(
                     ProblemType.DUPLICATE_PERMISSION, "Permission already exists: " + name);
         }
-        permission.setName(name);
-        permission.setDescription(description);
-        Permission saved = permissionPort.save(permission);
+        Permission saved = permissionPort.save(permission.toBuilder().name(name).description(description).build());
         auditLogger.permissionUpdated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(

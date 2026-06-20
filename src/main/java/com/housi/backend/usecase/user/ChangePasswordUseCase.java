@@ -46,7 +46,6 @@ public class ChangePasswordUseCase {
                     "Old and new passwords must be different.");
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userPort.save(user);
+        userPort.save(user.toBuilder().password(passwordEncoder.encode(newPassword)).build());
     }
 }

@@ -35,12 +35,13 @@ public class RegisterUseCase {
             throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
         userPort.save(
-                new User(
-                        firstName,
-                        lastName,
-                        email,
-                        passwordEncoder.encode(password),
-                        initialRoles()));
+                User.builder()
+                        .firstName(firstName)
+                        .lastName(lastName)
+                        .email(email)
+                        .password(passwordEncoder.encode(password))
+                        .roles(initialRoles())
+                        .build());
     }
 
     private Set<Role> initialRoles() {

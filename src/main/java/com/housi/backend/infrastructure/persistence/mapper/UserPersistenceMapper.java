@@ -13,7 +13,6 @@ import com.housi.backend.infrastructure.persistence.entity.UserEntity;
         uses = {RolePersistenceMapper.class})
 public interface UserPersistenceMapper {
 
-    @Mapping(target = "authorities", ignore = true)
     User toDomain(UserEntity entity);
 
     @Mapping(target = "authorities", ignore = true)

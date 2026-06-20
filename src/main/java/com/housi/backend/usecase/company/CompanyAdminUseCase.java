@@ -50,8 +50,7 @@ public class CompanyAdminUseCase {
     public Company create(CreateCompanyCommand cmd) {
         conflictGuard.assertSlugAvailable(cmd.slug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId());
-        Company company = applyCreate(new Company(), cmd);
-        Company saved = companyPort.save(company);
+        Company saved = companyPort.save(buildFromCreate(cmd));
         auditLogger.companyAdminCreated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -67,8 +66,7 @@ public class CompanyAdminUseCase {
         Company company = require(id);
         conflictGuard.assertSlugAvailable(cmd.slug(), company.getSlug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId(), company.getFederalTaxId());
-        applyUpdate(company, cmd);
-        Company saved = companyPort.save(company);
+        Company saved = companyPort.save(applyUpdate(company, cmd));
         auditLogger.companyAdminUpdated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -102,46 +100,47 @@ public class CompanyAdminUseCase {
                                         "Company with id '" + id + "' not found."));
     }
 
-    private Company applyCreate(Company company, CreateCompanyCommand cmd) {
-        company.setSlug(cmd.slug());
-        company.setName(cmd.name());
-        company.setOfficialName(cmd.officialName());
-        company.setFederalTaxId(cmd.federalTaxId());
-        company.setStateTaxId(cmd.stateTaxId());
-        company.setPhone(cmd.phone());
-        company.setEmail(cmd.email());
-        company.setAddressStreet(cmd.addressStreet());
-        company.setAddressStreetNumber(cmd.addressStreetNumber());
-        company.setAddressComplement(cmd.addressComplement());
-        company.setAddressCityDistrict(cmd.addressCityDistrict());
-        company.setAddressPostCode(cmd.addressPostCode());
-        company.setAddressCity(cmd.addressCity());
-        company.setAddressStateCode(cmd.addressStateCode());
-        company.setAddressCountry(cmd.addressCountry());
-        company.setAddressLatitude(cmd.addressLatitude());
-        company.setAddressLongitude(cmd.addressLongitude());
-        return company;
+    private Company buildFromCreate(CreateCompanyCommand cmd) {
+        return Company.builder()
+                .slug(cmd.slug())
+                .name(cmd.name())
+                .officialName(cmd.officialName())
+                .federalTaxId(cmd.federalTaxId())
+                .stateTaxId(cmd.stateTaxId())
+                .phone(cmd.phone())
+                .email(cmd.email())
+                .addressStreet(cmd.addressStreet())
+                .addressStreetNumber(cmd.addressStreetNumber())
+                .addressComplement(cmd.addressComplement())
+                .addressCityDistrict(cmd.addressCityDistrict())
+                .addressPostCode(cmd.addressPostCode())
+                .addressCity(cmd.addressCity())
+                .addressStateCode(cmd.addressStateCode())
+                .addressCountry(cmd.addressCountry())
+                .addressLatitude(cmd.addressLatitude())
+                .addressLongitude(cmd.addressLongitude())
+                .build();
     }
 
-    private void applyUpdate(Company company, UpdateCompanyCommand cmd) {
-        company.setSlug(cmd.slug());
-        company.setName(cmd.name());
-        company.setFederalTaxId(cmd.federalTaxId());
-        if (cmd.officialName() != null) company.setOfficialName(cmd.officialName());
-        if (cmd.stateTaxId() != null) company.setStateTaxId(cmd.stateTaxId());
-        if (cmd.phone() != null) company.setPhone(cmd.phone());
-        if (cmd.email() != null) company.setEmail(cmd.email());
-        if (cmd.addressStreet() != null) company.setAddressStreet(cmd.addressStreet());
-        if (cmd.addressStreetNumber() != null)
-            company.setAddressStreetNumber(cmd.addressStreetNumber());
-        if (cmd.addressComplement() != null) company.setAddressComplement(cmd.addressComplement());
-        if (cmd.addressCityDistrict() != null)
-            company.setAddressCityDistrict(cmd.addressCityDistrict());
-        if (cmd.addressPostCode() != null) company.setAddressPostCode(cmd.addressPostCode());
-        if (cmd.addressCity() != null) company.setAddressCity(cmd.addressCity());
-        if (cmd.addressStateCode() != null) company.setAddressStateCode(cmd.addressStateCode());
-        if (cmd.addressCountry() != null) company.setAddressCountry(cmd.addressCountry());
-        if (cmd.addressLatitude() != null) company.setAddressLatitude(cmd.addressLatitude());
-        if (cmd.addressLongitude() != null) company.setAddressLongitude(cmd.addressLongitude());
+    private Company applyUpdate(Company company, UpdateCompanyCommand cmd) {
+        Company.CompanyBuilder builder = company.toBuilder()
+                .slug(cmd.slug())
+                .name(cmd.name())
+                .federalTaxId(cmd.federalTaxId());
+        if (cmd.officialName() != null) builder.officialName(cmd.officialName());
+        if (cmd.stateTaxId() != null) builder.stateTaxId(cmd.stateTaxId());
+        if (cmd.phone() != null) builder.phone(cmd.phone());
+        if (cmd.email() != null) builder.email(cmd.email());
+        if (cmd.addressStreet() != null) builder.addressStreet(cmd.addressStreet());
+        if (cmd.addressStreetNumber() != null) builder.addressStreetNumber(cmd.addressStreetNumber());
+        if (cmd.addressComplement() != null) builder.addressComplement(cmd.addressComplement());
+        if (cmd.addressCityDistrict() != null) builder.addressCityDistrict(cmd.addressCityDistrict());
+        if (cmd.addressPostCode() != null) builder.addressPostCode(cmd.addressPostCode());
+        if (cmd.addressCity() != null) builder.addressCity(cmd.addressCity());
+        if (cmd.addressStateCode() != null) builder.addressStateCode(cmd.addressStateCode());
+        if (cmd.addressCountry() != null) builder.addressCountry(cmd.addressCountry());
+        if (cmd.addressLatitude() != null) builder.addressLatitude(cmd.addressLatitude());
+        if (cmd.addressLongitude() != null) builder.addressLongitude(cmd.addressLongitude());
+        return builder.build();
     }
 }

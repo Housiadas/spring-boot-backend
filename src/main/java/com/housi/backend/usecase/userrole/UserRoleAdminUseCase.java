@@ -70,8 +70,7 @@ public class UserRoleAdminUseCase {
 
         lastAdminGuard.assertAdminRoleRemovalAllowed(user, roleNames);
 
-        user.setRoles(resolved);
-        userPort.save(user);
+        userPort.save(user.toBuilder().roles(resolved).build());
         auditLogger.userRolesChanged(String.join(",", before), String.join(",", roleNames));
         eventPublisher.publishEvent(
                 new EntityAuditEvent(

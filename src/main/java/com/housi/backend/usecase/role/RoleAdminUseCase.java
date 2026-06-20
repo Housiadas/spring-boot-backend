@@ -59,10 +59,11 @@ public class RoleAdminUseCase {
         if (rolePort.existsByName(name)) {
             throw new ConflictException(ProblemType.DUPLICATE_ROLE, "Role already exists: " + name);
         }
-        Role role = new Role(name, description);
-        if (permissions != null && !permissions.isEmpty()) {
-            role.setPermissions(resolvePermissions(permissions));
-        }
+        Role role = Role.builder()
+                .name(name)
+                .description(description)
+                .permissions(permissions != null && !permissions.isEmpty() ? resolvePermissions(permissions) : new HashSet<>())
+                .build();
         Role saved = rolePort.save(role);
         auditLogger.roleCreated(saved.getName());
         eventPublisher.publishEvent(
@@ -82,12 +83,12 @@ public class RoleAdminUseCase {
         if (!role.getName().equals(name) && rolePort.existsByName(name)) {
             throw new ConflictException(ProblemType.DUPLICATE_ROLE, "Role already exists: " + name);
         }
-        role.setName(name);
-        role.setDescription(description);
-        if (permissions != null) {
-            role.setPermissions(resolvePermissions(permissions));
-        }
-        Role saved = rolePort.save(role);
+        Role updated = role.toBuilder()
+                .name(name)
+                .description(description)
+                .permissions(permissions != null ? resolvePermissions(permissions) : role.getPermissions())
+                .build();
+        Role saved = rolePort.save(updated);
         auditLogger.roleUpdated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -117,9 +118,10 @@ public class RoleAdminUseCase {
     @Transactional
     public Role replacePermissions(UUID id, Set<String> permissionNames) {
         Role role = requireRole(id);
-        role.setPermissions(
-                permissionNames == null ? new HashSet<>() : resolvePermissions(permissionNames));
-        Role saved = rolePort.save(role);
+        Role updated = role.toBuilder()
+                .permissions(permissionNames == null ? new HashSet<>() : resolvePermissions(permissionNames))
+                .build();
+        Role saved = rolePort.save(updated);
         auditLogger.rolePermissionsChanged(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(

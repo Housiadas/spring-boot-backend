@@ -4,7 +4,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -13,35 +12,28 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
 
-@Getter
-@Setter
+@Value
+@Builder(toBuilder = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements Serializable {
 
     @Serial private static final long serialVersionUID = 2134607105408362080L;
 
-    private UUID id;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
-    private String createdBy;
-    private String updatedBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Set<Role> roles = new HashSet<>();
-
-    public User(String firstName, String lastName, String email, String password, Set<Role> roles) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.roles = roles;
-    }
-
-    public User() {}
+    @EqualsAndHashCode.Include
+    UUID id;
+    String firstName;
+    String lastName;
+    String email;
+    String password;
+    String createdBy;
+    String updatedBy;
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
+    Set<Role> roles;
 
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         return Stream.concat(

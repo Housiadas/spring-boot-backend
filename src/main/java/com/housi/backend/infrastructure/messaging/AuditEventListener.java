@@ -27,15 +27,15 @@ public class AuditEventListener {
     public void onEntityAudit(EntityAuditEvent event) {
         User actor = findAuthenticatedUser.getAuthenticatedUser();
 
-        Audit audit = new Audit();
-        audit.setObjId(event.entityId());
-        audit.setObjEntity(event.entityType());
-        audit.setObjName(event.entityName());
-        audit.setActorId(actor.getId());
-        audit.setAction(event.action().getName());
-        audit.setMessage(event.message());
-        audit.setCreatedAt(LocalDateTime.now());
-
-        auditPort.save(audit);
+        auditPort.save(
+                Audit.builder()
+                        .objId(event.entityId())
+                        .objEntity(event.entityType())
+                        .objName(event.entityName())
+                        .actorId(actor.getId())
+                        .action(event.action().getName())
+                        .message(event.message())
+                        .createdAt(LocalDateTime.now())
+                        .build());
     }
 }

@@ -67,12 +67,13 @@ public class UserAdminUseCase {
         }
         User user =
                 userPort.save(
-                        new User(
-                                firstName,
-                                lastName,
-                                email,
-                                passwordEncoder.encode(rawPassword),
-                                Set.of(requireRole(RoleEnum.USER.getName()))));
+                        User.builder()
+                                .firstName(firstName)
+                                .lastName(lastName)
+                                .email(email)
+                                .password(passwordEncoder.encode(rawPassword))
+                                .roles(Set.of(requireRole(RoleEnum.USER.getName())))
+                                .build());
         auditLogger.userAdminCreated(user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -86,10 +87,7 @@ public class UserAdminUseCase {
         if (!user.getEmail().equals(email) && userPort.existsByEmail(email)) {
             throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
-        userPort.save(user);
+        userPort.save(user.toBuilder().firstName(firstName).lastName(lastName).email(email).build());
         auditLogger.userAdminUpdated(user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
