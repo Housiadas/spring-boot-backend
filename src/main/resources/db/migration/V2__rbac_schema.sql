@@ -2,6 +2,8 @@ CREATE TABLE roles (
     id          uuid         PRIMARY KEY,
     name        varchar(50)  NOT NULL UNIQUE,
     description varchar(255),
+    created_by  varchar(255),
+    updated_by  varchar(255),
     created_at  timestamp(6) NOT NULL,
     updated_at  timestamp(6)
 );

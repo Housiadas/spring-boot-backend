@@ -1,15 +1,17 @@
 CREATE TABLE users
 (
-    id         uuid PRIMARY KEY,
+    id         uuid         PRIMARY KEY,
     first_name varchar(255) NOT NULL,
     last_name  varchar(255) NOT NULL,
     email      varchar(100) NOT NULL UNIQUE,
     password   varchar(255) NOT NULL,
+    created_by varchar(255),
+    updated_by varchar(255),
     created_at timestamp(6) NOT NULL,
     updated_at timestamp(6)
 );
 
-CREATE TABLE company
+CREATE TABLE companies
 (
     id                    uuid PRIMARY KEY,
     slug                  varchar(255) NOT NULL UNIQUE,
@@ -34,6 +36,19 @@ CREATE TABLE company
     created_by            varchar(255),
     updated_by            varchar(255),
 
-    created_at            timestamp    NOT NULL DEFAULT current_timestamp,
-    updated_at            timestamp    NOT NULL DEFAULT current_timestamp
+    created_at            timestamp NOT NULL DEFAULT current_timestamp,
+    updated_at            timestamp NOT NULL DEFAULT current_timestamp
+);
+
+CREATE TABLE audit
+(
+    id         uuid      PRIMARY KEY,
+    obj_id     uuid      NOT NULL,
+    obj_entity TEXT      NOT NULL,
+    obj_name   TEXT      NOT NULL,
+    actor_id   uuid      NOT NULL,
+    action     TEXT      NOT NULL,
+    data       JSONB     NULL,
+    message    TEXT      NULL,
+    created_at TIMESTAMP NOT NULL
 );
