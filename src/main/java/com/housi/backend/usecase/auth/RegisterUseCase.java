@@ -23,10 +23,7 @@ public class RegisterUseCase {
     private final RolePort rolePort;
     private final PasswordEncoder passwordEncoder;
 
-    public RegisterUseCase(
-            UserPort userPort,
-            RolePort rolePort,
-            PasswordEncoder passwordEncoder) {
+    public RegisterUseCase(UserPort userPort, RolePort rolePort, PasswordEncoder passwordEncoder) {
         this.userPort = userPort;
         this.rolePort = rolePort;
         this.passwordEncoder = passwordEncoder;
@@ -56,8 +53,8 @@ public class RegisterUseCase {
     }
 
     private Role requireRole(String name) {
-        return rolePort
-                .findByName(name)
-                .orElseThrow(() -> new InternalServerErrorException("Required role missing: " + name));
+        return rolePort.findByName(name)
+                .orElseThrow(
+                        () -> new InternalServerErrorException("Required role missing: " + name));
     }
 }

@@ -31,15 +31,19 @@ public class ChangePasswordUseCase {
         User user = findAuthenticatedUser.getAuthenticatedUser();
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BadRequestException(ProblemType.INVALID_PASSWORD, "Current password is incorrect.");
+            throw new BadRequestException(
+                    ProblemType.INVALID_PASSWORD, "Current password is incorrect.");
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            throw new BadRequestException(ProblemType.PASSWORD_MISMATCH, "New passwords do not match.");
+            throw new BadRequestException(
+                    ProblemType.PASSWORD_MISMATCH, "New passwords do not match.");
         }
 
         if (oldPassword.equals(newPassword)) {
-            throw new BadRequestException(ProblemType.PASSWORD_SAME_AS_CURRENT, "Old and new passwords must be different.");
+            throw new BadRequestException(
+                    ProblemType.PASSWORD_SAME_AS_CURRENT,
+                    "Old and new passwords must be different.");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

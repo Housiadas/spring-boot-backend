@@ -18,9 +18,9 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housi.backend.TestcontainersConfiguration;
-import com.housi.backend.infrastructure.persistence.repository.AuditRepository;
-import com.housi.backend.infrastructure.persistence.repository.RoleRepository;
-import com.housi.backend.infrastructure.persistence.repository.UserRepository;
+import com.housi.backend.infrastructure.persistence.repository.AuditJpaRepository;
+import com.housi.backend.infrastructure.persistence.repository.RoleJpaRepository;
+import com.housi.backend.infrastructure.persistence.repository.UserJpaRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -29,9 +29,9 @@ class AuditAdminIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired StringRedisTemplate redis;
-    @Autowired UserRepository userRepository;
-    @Autowired RoleRepository roleRepository;
-    @Autowired AuditRepository auditRepository;
+    @Autowired UserJpaRepository userRepository;
+    @Autowired RoleJpaRepository roleRepository;
+    @Autowired AuditJpaRepository auditRepository;
 
     final ObjectMapper objectMapper = new ObjectMapper();
 

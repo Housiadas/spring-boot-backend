@@ -18,8 +18,7 @@ public class AuditEventListener {
     private final AuditPort auditPort;
     private final FindAuthenticatedUser findAuthenticatedUser;
 
-    public AuditEventListener(
-            AuditPort auditPort, FindAuthenticatedUser findAuthenticatedUser) {
+    public AuditEventListener(AuditPort auditPort, FindAuthenticatedUser findAuthenticatedUser) {
         this.auditPort = auditPort;
         this.findAuthenticatedUser = findAuthenticatedUser;
     }

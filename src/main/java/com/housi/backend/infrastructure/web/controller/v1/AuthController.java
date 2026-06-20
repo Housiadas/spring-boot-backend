@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import com.housi.backend.constant.AppUrls;
 import com.housi.backend.infrastructure.web.request.v1.LoginRequest;
 import com.housi.backend.infrastructure.web.request.v1.RegisterRequest;
-import com.housi.backend.infrastructure.web.response.v1.LoginResponse;
 import com.housi.backend.infrastructure.web.response.shared.ApiProblemDetail;
+import com.housi.backend.infrastructure.web.response.v1.LoginResponse;
 import com.housi.backend.usecase.auth.LoginUseCase;
 import com.housi.backend.usecase.auth.RegisterUseCase;
 

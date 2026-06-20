@@ -62,7 +62,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(BAD_REQUEST)
-                .body(buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors));
+                .body(
+                        buildProblemDetail(
+                                BAD_REQUEST,
+                                ProblemType.VALIDATION_FAILED,
+                                "Validation failed.",
+                                errors));
     }
 
     @Override
@@ -88,7 +93,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
 
         return ResponseEntity.status(BAD_REQUEST)
-                .body(buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors));
+                .body(
+                        buildProblemDetail(
+                                BAD_REQUEST,
+                                ProblemType.VALIDATION_FAILED,
+                                "Validation failed.",
+                                errors));
     }
 
     @ResponseStatus(BAD_REQUEST)
@@ -101,12 +111,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         for (final var violation : ex.getConstraintViolations()) {
             errors.add(
                     ApiErrorDetails.builder()
-                            .pointer(((PathImpl) violation.getPropertyPath()).getLeafNode().getName())
+                            .pointer(
+                                    ((PathImpl) violation.getPropertyPath())
+                                            .getLeafNode()
+                                            .getName())
                             .reason(violation.getMessage())
                             .build());
         }
 
-        return buildProblemDetail(BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors);
+        return buildProblemDetail(
+                BAD_REQUEST, ProblemType.VALIDATION_FAILED, "Validation failed.", errors);
     }
 
     @ResponseStatus(BAD_REQUEST)
@@ -129,15 +143,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleAccessDeniedException(final AccessDeniedException ex) {
         log.atInfo().setMessage("Access denied exception").setCause(ex).log();
 
-        return buildProblemDetail(HttpStatus.FORBIDDEN, ProblemType.ACCESS_DENIED, "Access denied.");
+        return buildProblemDetail(
+                HttpStatus.FORBIDDEN, ProblemType.ACCESS_DENIED, "Access denied.");
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ProblemDetail handleEmptyResultDataAccessException(final EmptyResultDataAccessException ex) {
+    public ProblemDetail handleEmptyResultDataAccessException(
+            final EmptyResultDataAccessException ex) {
         log.atInfo().setMessage("Empty result data access exception").setCause(ex).log();
 
-        return buildProblemDetail(HttpStatus.NOT_FOUND, ProblemType.RESOURCE_NOT_FOUND, "No record found for this id.");
+        return buildProblemDetail(
+                HttpStatus.NOT_FOUND,
+                ProblemType.RESOURCE_NOT_FOUND,
+                "No record found for this id.");
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -145,7 +164,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleLazyInitialization(final LazyInitializationException ex) {
         log.atWarn().setMessage("Lazy initialization exception").setCause(ex).log();
 
-        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ProblemType.INTERNAL_ERROR, API_DEFAULT_ERROR_MESSAGE);
+        return buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ProblemType.INTERNAL_ERROR,
+                API_DEFAULT_ERROR_MESSAGE);
     }
 
     @ExceptionHandler(RootException.class)
@@ -153,7 +175,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atInfo().setMessage("Root exception").setCause(ex).log();
 
         final ProblemDetail problemDetail =
-                buildProblemDetail(ex.getHttpStatus(), ex.getProblemType(), ex.getMessage(), ex.getErrors());
+                buildProblemDetail(
+                        ex.getHttpStatus(), ex.getProblemType(), ex.getMessage(), ex.getErrors());
         return ResponseEntity.status(ex.getHttpStatus()).body(problemDetail);
     }
 
@@ -162,10 +185,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleAllExceptions(final Throwable ex) {
         log.atWarn().setMessage("Unhandled exception").setCause(ex).log();
 
-        return buildProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, ProblemType.INTERNAL_ERROR, API_DEFAULT_ERROR_MESSAGE);
+        return buildProblemDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ProblemType.INTERNAL_ERROR,
+                API_DEFAULT_ERROR_MESSAGE);
     }
 
-    private ProblemDetail buildProblemDetail(HttpStatus status, ProblemType problemType, String detail) {
+    private ProblemDetail buildProblemDetail(
+            HttpStatus status, ProblemType problemType, String detail) {
         return buildProblemDetail(status, problemType, detail, emptyList());
     }
 
@@ -190,7 +217,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private ProblemType detectConstraintProblemType(final String cause) {
         final String lower = cause.toLowerCase();
         if (lower.contains("slug")) return ProblemType.DUPLICATE_SLUG;
-        if (lower.contains("federal_tax_id") || lower.contains("tax")) return ProblemType.DUPLICATE_FEDERAL_TAX_ID;
+        if (lower.contains("federal_tax_id") || lower.contains("tax"))
+            return ProblemType.DUPLICATE_FEDERAL_TAX_ID;
         if (lower.contains("email")) return ProblemType.DUPLICATE_EMAIL;
         return ProblemType.VALIDATION_FAILED;
     }

@@ -53,21 +53,25 @@ public class LoginUseCase {
         } catch (BadCredentialsException ex) {
             loginAttemptService.recordFailure(email);
             auditLogger.loginFailure(email, "bad_credentials");
-            throw new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Invalid email or password.");
+            throw new NotAuthorizedException(
+                    ProblemType.INVALID_CREDENTIALS, "Invalid email or password.");
         } catch (AuthenticationException ex) {
             auditLogger.loginFailure(email, ex.getClass().getSimpleName());
-            throw new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Authentication failed.");
+            throw new NotAuthorizedException(
+                    ProblemType.INVALID_CREDENTIALS, "Authentication failed.");
         }
 
         loginAttemptService.reset(email);
 
         User user =
-                userPort
-                        .findByEmail(email)
+                userPort.findByEmail(email)
                         .orElseThrow(
-                                () -> new NotAuthorizedException(ProblemType.INVALID_CREDENTIALS, "Invalid email or password."));
+                                () ->
+                                        new NotAuthorizedException(
+                                                ProblemType.INVALID_CREDENTIALS,
+                                                "Invalid email or password."));
 
-        String jwtToken = jwtService.generateToken(new HashMap<>(), user);
+        String jwtToken = jwtService.generateToken(new HashMap<>(), user.getEmail());
         auditLogger.loginSuccess(email);
         return jwtToken;
     }

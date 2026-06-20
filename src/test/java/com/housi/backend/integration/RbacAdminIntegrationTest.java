@@ -21,9 +21,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housi.backend.TestcontainersConfiguration;
-import com.housi.backend.domain.model.Role;
-import com.housi.backend.infrastructure.persistence.repository.RoleRepository;
-import com.housi.backend.infrastructure.persistence.repository.UserRepository;
+import com.housi.backend.infrastructure.persistence.entity.RoleEntity;
+import com.housi.backend.infrastructure.persistence.repository.RoleJpaRepository;
+import com.housi.backend.infrastructure.persistence.repository.UserJpaRepository;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,8 +32,8 @@ class RbacAdminIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired StringRedisTemplate redis;
-    @Autowired UserRepository userRepository;
-    @Autowired RoleRepository roleRepository;
+    @Autowired UserJpaRepository userRepository;
+    @Autowired RoleJpaRepository roleRepository;
 
     final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -105,7 +105,7 @@ class RbacAdminIntegrationTest {
 
     @Test
     void cannotDeleteSeededRole() throws Exception {
-        Role admin = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
+        RoleEntity admin = roleRepository.findByName("ROLE_ADMIN").orElseThrow();
         mockMvc.perform(
                         delete("/api/v1/admin/roles/" + admin.getId())
                                 .header("Authorization", "Bearer " + adminToken))

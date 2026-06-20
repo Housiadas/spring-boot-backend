@@ -49,7 +49,7 @@ spring:
       time-to-live: 600000
       cache-null-values: false
   jwt:
-    secret: ${JWT_SECRET:}
+    secret: ${JWT_SECRET:PA11l8EprUzQajXo+7eaL1MPstYnewau/pp7/D3L0Nc=}
     expiration: 900000
 #  security:
 #    oauth2:
@@ -84,14 +84,14 @@ http:
   clients:
     default-timeout: ${HTTP_CLIENTS_DEFAULT_TIMEOUT:5000}
     webhook-site:
-      base-url: ${HTTP_CLIENTS_MY_EXTERNAL_API_BASE_URL}
+      base-url: ${HTTP_CLIENTS_MY_EXTERNAL_API_BASE_URL:http://localhost}
 
 slack:
-  env: ${SLACK_ENV}
+  env: ${SLACK_ENV:}
   channels:
     api-alert:
-      url: ${SLACK_API_ALERT_URL}
-      name: ${SLACK_API_ALERT_CHANNEL}
+      url: ${SLACK_API_ALERT_URL:}
+      name: ${SLACK_API_ALERT_CHANNEL:}
 
 rate-limit:
   default:

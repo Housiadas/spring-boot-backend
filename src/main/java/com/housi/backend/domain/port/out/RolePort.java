@@ -17,7 +17,7 @@ public interface RolePort {
 
     long countUsersWithRole(UUID roleId);
 
-    <S extends Role> S save(S role);
+    Role save(Role role);
 
     void delete(Role role);
 }

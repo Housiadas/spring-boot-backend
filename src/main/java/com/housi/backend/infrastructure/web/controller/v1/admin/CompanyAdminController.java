@@ -116,19 +116,43 @@ public class CompanyAdminController {
 
     private CreateCompanyCommand toCommand(CreateCompanyRequest r) {
         return new CreateCompanyCommand(
-                r.slug(), r.name(), r.officialName(), r.federalTaxId(), r.stateTaxId(),
-                r.phone(), r.email(), r.addressStreet(), r.addressStreetNumber(),
-                r.addressComplement(), r.addressCityDistrict(), r.addressPostCode(),
-                r.addressCity(), r.addressStateCode(), r.addressCountry(),
-                r.addressLatitude(), r.addressLongitude());
+                r.slug(),
+                r.name(),
+                r.officialName(),
+                r.federalTaxId(),
+                r.stateTaxId(),
+                r.phone(),
+                r.email(),
+                r.addressStreet(),
+                r.addressStreetNumber(),
+                r.addressComplement(),
+                r.addressCityDistrict(),
+                r.addressPostCode(),
+                r.addressCity(),
+                r.addressStateCode(),
+                r.addressCountry(),
+                r.addressLatitude(),
+                r.addressLongitude());
     }
 
     private UpdateCompanyCommand toCommand(UpdateCompanyRequest r) {
         return new UpdateCompanyCommand(
-                r.slug(), r.name(), r.officialName(), r.federalTaxId(), r.stateTaxId(),
-                r.phone(), r.email(), r.addressStreet(), r.addressStreetNumber(),
-                r.addressComplement(), r.addressCityDistrict(), r.addressPostCode(),
-                r.addressCity(), r.addressStateCode(), r.addressCountry(),
-                r.addressLatitude(), r.addressLongitude());
+                r.slug(),
+                r.name(),
+                r.officialName(),
+                r.federalTaxId(),
+                r.stateTaxId(),
+                r.phone(),
+                r.email(),
+                r.addressStreet(),
+                r.addressStreetNumber(),
+                r.addressComplement(),
+                r.addressCityDistrict(),
+                r.addressPostCode(),
+                r.addressCity(),
+                r.addressStateCode(),
+                r.addressCountry(),
+                r.addressLatitude(),
+                r.addressLongitude());
     }
 }

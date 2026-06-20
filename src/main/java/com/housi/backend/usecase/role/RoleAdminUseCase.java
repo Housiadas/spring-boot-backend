@@ -75,7 +75,9 @@ public class RoleAdminUseCase {
     public Role update(UUID id, String name, String description, Set<String> permissions) {
         Role role = requireRole(id);
         if (PROTECTED_ROLES.contains(role.getName()) && !role.getName().equals(name)) {
-            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot rename seeded role: " + role.getName());
+            throw new ConflictException(
+                    ProblemType.OPERATION_NOT_ALLOWED,
+                    "Cannot rename seeded role: " + role.getName());
         }
         if (!role.getName().equals(name) && rolePort.existsByName(name)) {
             throw new ConflictException(ProblemType.DUPLICATE_ROLE, "Role already exists: " + name);
@@ -97,10 +99,13 @@ public class RoleAdminUseCase {
     public void delete(UUID id) {
         Role role = requireRole(id);
         if (PROTECTED_ROLES.contains(role.getName())) {
-            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Cannot delete seeded role: " + role.getName());
+            throw new ConflictException(
+                    ProblemType.OPERATION_NOT_ALLOWED,
+                    "Cannot delete seeded role: " + role.getName());
         }
         if (rolePort.countUsersWithRole(id) > 0) {
-            throw new ConflictException(ProblemType.OPERATION_NOT_ALLOWED, "Role is still assigned to users.");
+            throw new ConflictException(
+                    ProblemType.OPERATION_NOT_ALLOWED, "Role is still assigned to users.");
         }
         auditLogger.roleDeleted(role.getName());
         eventPublisher.publishEvent(
@@ -127,9 +132,12 @@ public class RoleAdminUseCase {
     }
 
     private Role requireRole(UUID id) {
-        return rolePort
-                .findWithPermissionsById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.ROLE_NOT_FOUND, "Role with id '" + id + "' not found."));
+        return rolePort.findWithPermissionsById(id)
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        ProblemType.ROLE_NOT_FOUND,
+                                        "Role with id '" + id + "' not found."));
     }
 
     private Set<Permission> resolvePermissions(Set<String> names) {
@@ -138,7 +146,11 @@ public class RoleAdminUseCase {
             Permission p =
                     permissionPort
                             .findByName(name)
-                            .orElseThrow(() -> new BadRequestException(ProblemType.UNKNOWN_PERMISSION, "Unknown permission: " + name));
+                            .orElseThrow(
+                                    () ->
+                                            new BadRequestException(
+                                                    ProblemType.UNKNOWN_PERMISSION,
+                                                    "Unknown permission: " + name));
             resolved.add(p);
         }
         return resolved;

@@ -46,9 +46,12 @@ public class UserRoleAdminUseCase {
     @Transactional
     public User replaceUserRoles(UUID userId, Set<String> roleNames) {
         User user =
-                userPort
-                        .findByIdWithRolesAndPermissions(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException(ProblemType.USER_NOT_FOUND, "User with id '" + userId + "' not found."));
+                userPort.findByIdWithRolesAndPermissions(userId)
+                        .orElseThrow(
+                                () ->
+                                        new ResourceNotFoundException(
+                                                ProblemType.USER_NOT_FOUND,
+                                                "User with id '" + userId + "' not found."));
 
         Set<String> before =
                 user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());
@@ -56,9 +59,12 @@ public class UserRoleAdminUseCase {
         Set<Role> resolved = new HashSet<>();
         for (String name : roleNames) {
             Role r =
-                    rolePort
-                            .findByName(name)
-                            .orElseThrow(() -> new BadRequestException(ProblemType.UNKNOWN_ROLE, "Unknown role: " + name));
+                    rolePort.findByName(name)
+                            .orElseThrow(
+                                    () ->
+                                            new BadRequestException(
+                                                    ProblemType.UNKNOWN_ROLE,
+                                                    "Unknown role: " + name));
             resolved.add(r);
         }
 

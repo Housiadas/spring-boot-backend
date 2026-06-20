@@ -8,5 +8,5 @@ import com.housi.backend.domain.model.Audit;
 public interface AuditPort {
     Page<Audit> findAll(Pageable pageable);
 
-    <S extends Audit> S save(S audit);
+    Audit save(Audit audit);
 }

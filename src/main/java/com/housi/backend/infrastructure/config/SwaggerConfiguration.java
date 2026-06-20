@@ -35,30 +35,32 @@ public class SwaggerConfiguration {
     @Bean
     public OpenApiCustomizer globalErrorResponsesCustomizer() {
         return openApi -> {
-            final var schemas =
-                    ModelConverters.getInstance()
-                            .readAll(ApiProblemDetail.class);
+            final var schemas = ModelConverters.getInstance().readAll(ApiProblemDetail.class);
             if (openApi.getComponents() == null) {
                 openApi.setComponents(new io.swagger.v3.oas.models.Components());
             }
             schemas.forEach((name, schema) -> openApi.getComponents().addSchemas(name, schema));
 
-            final ApiResponse r401 = problemDetailResponse("Authentication required — valid Bearer token missing or expired");
-            final ApiResponse r403 = problemDetailResponse("Access denied — insufficient permissions");
+            final ApiResponse r401 =
+                    problemDetailResponse(
+                            "Authentication required — valid Bearer token missing or expired");
+            final ApiResponse r403 =
+                    problemDetailResponse("Access denied — insufficient permissions");
             final ApiResponse r500 = problemDetailResponse("Unexpected internal server error");
 
             openApi.getPaths()
                     .values()
                     .forEach(
                             pathItem ->
-                                    pathItem
-                                            .readOperations()
+                                    pathItem.readOperations()
                                             .forEach(
                                                     operation -> {
                                                         if (operation.getResponses() == null) {
-                                                            operation.setResponses(new ApiResponses());
+                                                            operation.setResponses(
+                                                                    new ApiResponses());
                                                         }
-                                                        operation.getResponses()
+                                                        operation
+                                                                .getResponses()
                                                                 .addApiResponse("401", r401)
                                                                 .addApiResponse("403", r403)
                                                                 .addApiResponse("500", r500);

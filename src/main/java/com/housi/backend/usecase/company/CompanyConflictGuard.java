@@ -17,7 +17,8 @@ public class CompanyConflictGuard {
 
     public void assertSlugAvailable(String slug) {
         if (companyPort.existsBySlug(slug)) {
-            throw new ConflictException(ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + slug);
+            throw new ConflictException(
+                    ProblemType.DUPLICATE_SLUG, "Company slug already exists: " + slug);
         }
     }
 
@@ -27,7 +28,8 @@ public class CompanyConflictGuard {
 
     public void assertFederalTaxIdAvailable(String federalTaxId) {
         if (companyPort.existsByFederalTaxId(federalTaxId)) {
-            throw new ConflictException(ProblemType.DUPLICATE_FEDERAL_TAX_ID,
+            throw new ConflictException(
+                    ProblemType.DUPLICATE_FEDERAL_TAX_ID,
                     "Company with this federal tax ID already exists: " + federalTaxId);
         }
     }

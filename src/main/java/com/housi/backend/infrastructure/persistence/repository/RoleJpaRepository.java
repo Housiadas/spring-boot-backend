@@ -9,28 +9,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.housi.backend.domain.model.Role;
-import com.housi.backend.domain.port.out.RolePort;
+import com.housi.backend.infrastructure.persistence.entity.RoleEntity;
 
 @Repository
-public interface RoleRepository extends CrudRepository<Role, UUID>, RolePort {
+public interface RoleJpaRepository extends CrudRepository<RoleEntity, UUID> {
 
-    @Override
-    Optional<Role> findByName(String name);
+    Optional<RoleEntity> findByName(String name);
 
-    @Override
     boolean existsByName(String name);
 
-    @Override
     @EntityGraph(attributePaths = "permissions")
-    @Query("SELECT r FROM Role r")
-    List<Role> findAllWithPermissions();
+    @Query("SELECT r FROM RoleEntity r")
+    List<RoleEntity> findAllWithPermissions();
 
-    @Override
     @EntityGraph(attributePaths = "permissions")
-    Optional<Role> findWithPermissionsById(UUID id);
+    Optional<RoleEntity> findWithPermissionsById(UUID id);
 
-    @Override
-    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.id = :roleId")
+    @Query("SELECT COUNT(u) FROM UserEntity u JOIN u.roles r WHERE r.id = :roleId")
     long countUsersWithRole(UUID roleId);
 }

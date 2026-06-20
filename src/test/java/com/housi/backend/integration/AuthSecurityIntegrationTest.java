@@ -29,7 +29,9 @@ class AuthSecurityIntegrationTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired StringRedisTemplate redis;
-    @Autowired com.housi.backend.infrastructure.persistence.repository.UserRepository userRepository;
+
+    @Autowired
+    com.housi.backend.infrastructure.persistence.repository.UserJpaRepository userRepository;
 
     final ObjectMapper objectMapper = new ObjectMapper();
 

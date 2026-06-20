@@ -19,7 +19,7 @@ public interface UserPort {
 
     long count();
 
-    <S extends User> S save(S user);
+    User save(User user);
 
     void delete(User user);
 }

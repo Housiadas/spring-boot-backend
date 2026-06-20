@@ -6,9 +6,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.housi.backend.domain.model.User;
+import com.housi.backend.infrastructure.persistence.entity.UserEntity;
+import com.housi.backend.infrastructure.persistence.mapper.UserPersistenceMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class FindAuthenticatedUser {
+
+    private final UserPersistenceMapper mapper;
 
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -18,6 +25,6 @@ public class FindAuthenticatedUser {
             throw new AccessDeniedException("Authentication required");
         }
 
-        return (User) authentication.getPrincipal();
+        return mapper.toDomain((UserEntity) authentication.getPrincipal());
     }
 }

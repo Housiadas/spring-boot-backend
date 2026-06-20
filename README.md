@@ -14,17 +14,18 @@ make test
  com.housi.backend
   │
   ├── domain/                          ← pure Java, zero framework dependencies
-  │   ├── model/                       ← domain objects (POJOs, not @Entity)
+  │   ├── model/                       ← domain objects (POJOs, no @Entity)
   │   │   ├── User.java
   │   │   ├── Company.java
-  │   │   ├── Role.java
-  │   │   ├── Permission.java
+  │   │   ├── Role.java                ← implements GrantedAuthority (security contract)
+  │   │   ├── Permission.java          ← implements GrantedAuthority (security contract)
   │   │   └── Audit.java
   │   ├── port/
   │   │   └── out/                     ← interfaces the domain defines, infra implements
   │   │       ├── UserPort.java
   │   │       ├── CompanyPort.java
   │   │       ├── RolePort.java
+  │   │       ├── PermissionPort.java
   │   │       └── AuditPort.java
   │   ├── event/                       ← domain events
   │   │   └── EntityAuditEvent.java
@@ -36,25 +37,33 @@ make test
   │       ├── RoleEnum.java
   │       └── EntityTransactionAuditEnum.java
   │
-  ├── usecase/                         ← aggregation layer; orchestrates domain + ports
+  ├── usecase/                         ← orchestrates domain + ports, no framework coupling
   │   ├── auth/
-  │   │   ├── LoginUseCase.java        ← calls UserPort, JwtPort, LoginAttemptPort
+  │   │   ├── LoginUseCase.java
   │   │   └── RegisterUseCase.java
   │   ├── user/
   │   │   ├── GetCurrentUserUseCase.java
   │   │   ├── ChangePasswordUseCase.java
   │   │   ├── DeleteUserUseCase.java
-  │   │   └── GetUserAdminUseCase.java
+  │   │   ├── UserAdminUseCase.java
+  │   │   └── LastAdminGuard.java
   │   ├── company/
-  │   │   ├── CreateCompanyUseCase.java
-  │   │   ├── UpdateCompanyUseCase.java
-  │   │   └── GetCompanyUseCase.java
+  │   │   ├── UserCompanyUseCase.java
+  │   │   ├── CompanyAdminUseCase.java
+  │   │   ├── CompanyConflictGuard.java
+  │   │   └── command/
+  │   │       ├── CreateCompanyCommand.java
+  │   │       └── UpdateCompanyCommand.java
   │   ├── role/
   │   │   └── RoleAdminUseCase.java
   │   ├── permission/
   │   │   └── PermissionAdminUseCase.java
-  │   └── audit/
-  │       └── AuditAdminUseCase.java
+  │   ├── userrole/
+  │   │   └── UserRoleAdminUseCase.java
+  │   ├── audit/
+  │   │   └── AuditAdminUseCase.java
+  │   └── webhook/
+  │       └── WebhookSiteUseCase.java
   │
   └── infrastructure/                  ← all framework, IO, and delivery concerns
       ├── config/                      ← Spring @Configuration classes
@@ -64,37 +73,51 @@ make test
       │   └── InterceptorConfiguration.java
       │
       ├── persistence/                 ← JPA adapter; implements domain ports
-      │   ├── entity/                  ← @Entity classes (JPA-specific)
-      │   │   ├── UserEntity.java
+      │   ├── entity/                  ← @Entity classes (JPA-specific, framework coupling lives here)
+      │   │   ├── UserEntity.java      ← implements UserDetails (Spring Security)
       │   │   ├── CompanyEntity.java
-      │   │   └── ...
-      │   ├── repository/              ← Spring Data JpaRepository interfaces
+      │   │   ├── RoleEntity.java      ← implements GrantedAuthority
+      │   │   ├── PermissionEntity.java← implements GrantedAuthority
+      │   │   └── AuditEntity.java
+      │   ├── repository/              ← Spring Data JpaRepository interfaces (entity-typed)
       │   │   ├── UserJpaRepository.java
       │   │   ├── CompanyJpaRepository.java
-      │   │   └── ...
-      │   ├── adapter/                 ← implements domain out-ports
+      │   │   ├── RoleJpaRepository.java
+      │   │   ├── PermissionJpaRepository.java
+      │   │   └── AuditJpaRepository.java
+      │   ├── adapter/                 ← implements domain out-ports; bridges repo + mapper
       │   │   ├── UserAdapter.java     ← implements UserPort
-      │   │   ├── CompanyAdapter.java
-      │   │   └── ...
-      │   └── mapper/                  ← Entity ↔ domain model mapping
+      │   │   ├── CompanyAdapter.java  ← implements CompanyPort (carries @Cacheable)
+      │   │   ├── RoleAdapter.java     ← implements RolePort
+      │   │   ├── PermissionAdapter.java← implements PermissionPort
+      │   │   └── AuditAdapter.java   ← implements AuditPort
+      │   └── mapper/                  ← Entity ↔ domain model (MapStruct)
       │       ├── UserPersistenceMapper.java
-      │       └── ...
+      │       ├── CompanyPersistenceMapper.java
+      │       ├── RolePersistenceMapper.java
+      │       ├── PermissionPersistenceMapper.java
+      │       └── AuditPersistenceMapper.java
       │
       ├── web/                         ← HTTP delivery adapter
-      │   ├── controller/
-      │   │   └── v1/
-      │   │       ├── admin/
-      │   │       │   ├── UserAdminController.java   ← calls usecase directly
-      │   │       │   ├── CompanyAdminController.java
-      │   │       │   └── ...
-      │   │       ├── AuthController.java
-      │   │       ├── UserController.java
-      │   │       └── UserCompanyController.java
+      │   ├── controller/v1/
+      │   │   ├── admin/
+      │   │   │   ├── UserAdminController.java
+      │   │   │   ├── CompanyAdminController.java
+      │   │   │   ├── RoleController.java
+      │   │   │   ├── PermissionController.java
+      │   │   │   └── AuditAdminController.java
+      │   │   ├── AuthController.java
+      │   │   ├── UserController.java
+      │   │   ├── UserCompanyController.java
+      │   │   └── PublicController.java
       │   ├── request/v1/              ← HTTP request DTOs
       │   ├── response/v1/             ← HTTP response DTOs
-      │   ├── mapper/                  ← Request/Response ↔ domain model
-      │   │   ├── UserWebMapper.java
-      │   │   └── ...
+      │   ├── mapper/                  ← domain model → Response DTO (MapStruct)
+      │   │   ├── UserMapper.java
+      │   │   ├── CompanyMapper.java
+      │   │   ├── RoleMapper.java
+      │   │   ├── PermissionMapper.java
+      │   │   └── AuditMapper.java
       │   ├── filter/
       │   │   ├── JwtAuthenticationFilter.java
       │   │   └── HttpRequestLoggingFilter.java
@@ -107,7 +130,9 @@ make test
       │   └── actuator/
       │       └── WebMvcPreStopHookEndpoint.java
       │
-      ├── security/                    ← security infrastructure (JWT, rate-limit)
+      ├── security/                    ← security infrastructure (JWT, rate-limit, auth)
+      │   ├── UserDetailsServiceAdapter.java   ← loads UserEntity for Spring Security
+      │   ├── FindAuthenticatedUser.java        ← maps UserEntity → domain User from context
       │   ├── JwtService.java
       │   ├── JwtAuthenticationEntryPoint.java
       │   └── LoginAttemptService.java
@@ -115,7 +140,23 @@ make test
       ├── messaging/                   ← event listeners and publishers
       │   └── AuditEventListener.java
       │
+      ├── audit/                       ← structured audit logging helpers
+      │   └── AuditLogger.java
+      │
       └── client/                      ← outbound HTTP clients
-          ├── webhook/WebhookSiteHttpClient.java
+          ├── http/WebhookSiteHttpClient.java
           └── slack/SlackAlertClient.java
 ```
+
+## Dependency flow
+
+```
+Controller → UseCase → Port (domain interface)
+                            ↑
+                       Adapter (infra, implements port)
+                            ↓
+                       JpaRepository → Entity → Database
+```
+
+The domain (`model/`, `port/`, `usecase/`) has zero dependency on JPA, Hibernate, or Spring Data.
+All framework coupling is contained inside `infrastructure/`.

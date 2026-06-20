@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.housi.backend.domain.model.User;
+import com.housi.backend.infrastructure.persistence.entity.UserEntity;
 import com.housi.backend.infrastructure.security.JwtService;
 
 import io.jsonwebtoken.JwtException;
@@ -73,8 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                    if (userDetails instanceof User user) {
-                        MDC.put("userId", user.getId().toString());
+                    if (userDetails instanceof UserEntity entity) {
+                        MDC.put("userId", entity.getId().toString());
                     }
                 }
             }

@@ -19,9 +19,7 @@ public class RootException extends RuntimeException {
     private final List<ApiErrorDetails> errors = new ArrayList<>();
 
     public RootException(
-            @NonNull HttpStatus httpStatus,
-            @NonNull ProblemType problemType,
-            String message) {
+            @NonNull HttpStatus httpStatus, @NonNull ProblemType problemType, String message) {
         super(message);
         this.httpStatus = httpStatus;
         this.problemType = problemType;

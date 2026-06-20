@@ -5,8 +5,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.housi.backend.domain.model.Audit;
-import com.housi.backend.domain.port.out.AuditPort;
+import com.housi.backend.infrastructure.persistence.entity.AuditEntity;
 
 @Repository
-public interface AuditRepository extends JpaRepository<Audit, UUID>, AuditPort {}
+public interface AuditJpaRepository extends JpaRepository<AuditEntity, UUID> {}

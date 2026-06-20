@@ -66,13 +66,13 @@ public class UserAdminUseCase {
             throw new ConflictException(ProblemType.DUPLICATE_EMAIL, "Email already taken.");
         }
         User user =
-                new User(
-                        firstName,
-                        lastName,
-                        email,
-                        passwordEncoder.encode(rawPassword),
-                        Set.of(requireRole(RoleEnum.USER.getName())));
-        userPort.save(user);
+                userPort.save(
+                        new User(
+                                firstName,
+                                lastName,
+                                email,
+                                passwordEncoder.encode(rawPassword),
+                                Set.of(requireRole(RoleEnum.USER.getName()))));
         auditLogger.userAdminCreated(user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -109,14 +109,17 @@ public class UserAdminUseCase {
     }
 
     private User requireUser(UUID id) {
-        return userPort
-                .findByIdWithRolesAndPermissions(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.USER_NOT_FOUND, "User with id '" + id + "' not found."));
+        return userPort.findByIdWithRolesAndPermissions(id)
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        ProblemType.USER_NOT_FOUND,
+                                        "User with id '" + id + "' not found."));
     }
 
     private Role requireRole(String name) {
-        return rolePort
-                .findByName(name)
-                .orElseThrow(() -> new InternalServerErrorException("Required role missing: " + name));
+        return rolePort.findByName(name)
+                .orElseThrow(
+                        () -> new InternalServerErrorException("Required role missing: " + name));
     }
 }

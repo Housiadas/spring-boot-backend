@@ -17,7 +17,7 @@ public interface CompanyPort {
 
     boolean existsByFederalTaxId(String federalTaxId);
 
-    <S extends Company> S save(S company);
+    Company save(Company company);
 
     void delete(Company company);
 }

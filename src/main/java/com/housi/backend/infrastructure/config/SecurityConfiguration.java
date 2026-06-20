@@ -9,8 +9,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.housi.backend.constant.AppUrls;
 import com.housi.backend.domain.enums.RoleEnum;
-import com.housi.backend.infrastructure.persistence.repository.UserRepository;
 import com.housi.backend.infrastructure.security.JwtAuthenticationEntryPoint;
 import com.housi.backend.infrastructure.web.filter.JwtAuthenticationFilter;
 
@@ -27,25 +24,14 @@ import com.housi.backend.infrastructure.web.filter.JwtAuthenticationFilter;
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
-    private final UserRepository userRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
     public SecurityConfiguration(
-            UserRepository userRepository,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             JwtAuthenticationEntryPoint authenticationEntryPoint) {
-        this.userRepository = userRepository;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.authenticationEntryPoint = authenticationEntryPoint;
-    }
-
-    @Bean
-    UserDetailsService userDetailsService() {
-        return username ->
-                userRepository
-                        .findByEmailWithAuthorities(username)
-                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean
@@ -82,8 +68,7 @@ public class SecurityConfiguration {
 
         http.exceptionHandling(
                 exceptionHandling ->
-                        exceptionHandling
-                                .authenticationEntryPoint(authenticationEntryPoint));
+                        exceptionHandling.authenticationEntryPoint(authenticationEntryPoint));
 
         http.sessionManagement(
                 session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -66,7 +66,10 @@ public class UserCompanyUseCase {
         auditLogger.companyUserRegistered(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.CREATE));
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -82,7 +85,10 @@ public class UserCompanyUseCase {
         auditLogger.companyUserUpdated(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.UPDATE));
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -94,19 +100,27 @@ public class UserCompanyUseCase {
         auditLogger.companyUserDeleted(company.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        company.getId(), "Company", company.getSlug(), EntityTransactionAuditEnum.DELETE));
+                        company.getId(),
+                        "Company",
+                        company.getSlug(),
+                        EntityTransactionAuditEnum.DELETE));
         companyPort.delete(company);
     }
 
     private Company require(UUID id) {
         return companyPort
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.COMPANY_NOT_FOUND, "Company with id '" + id + "' not found."));
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        ProblemType.COMPANY_NOT_FOUND,
+                                        "Company with id '" + id + "' not found."));
     }
 
     private void verifyOwnership(Company company, User user) {
         if (!user.getEmail().equals(company.getCreatedBy())) {
-            throw new NotAllowedException(ProblemType.ACCESS_DENIED, "You do not own this company.");
+            throw new NotAllowedException(
+                    ProblemType.ACCESS_DENIED, "You do not own this company.");
         }
     }
 
@@ -140,9 +154,11 @@ public class UserCompanyUseCase {
         if (cmd.phone() != null) company.setPhone(cmd.phone());
         if (cmd.email() != null) company.setEmail(cmd.email());
         if (cmd.addressStreet() != null) company.setAddressStreet(cmd.addressStreet());
-        if (cmd.addressStreetNumber() != null) company.setAddressStreetNumber(cmd.addressStreetNumber());
+        if (cmd.addressStreetNumber() != null)
+            company.setAddressStreetNumber(cmd.addressStreetNumber());
         if (cmd.addressComplement() != null) company.setAddressComplement(cmd.addressComplement());
-        if (cmd.addressCityDistrict() != null) company.setAddressCityDistrict(cmd.addressCityDistrict());
+        if (cmd.addressCityDistrict() != null)
+            company.setAddressCityDistrict(cmd.addressCityDistrict());
         if (cmd.addressPostCode() != null) company.setAddressPostCode(cmd.addressPostCode());
         if (cmd.addressCity() != null) company.setAddressCity(cmd.addressCity());
         if (cmd.addressStateCode() != null) company.setAddressStateCode(cmd.addressStateCode());

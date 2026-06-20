@@ -16,7 +16,7 @@ public interface PermissionPort {
 
     long countRolesWithPermission(UUID permissionId);
 
-    <S extends Permission> S save(S permission);
+    Permission save(Permission permission);
 
     void delete(Permission permission);
 }

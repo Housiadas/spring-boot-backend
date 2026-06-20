@@ -55,7 +55,10 @@ public class CompanyAdminUseCase {
         auditLogger.companyAdminCreated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.CREATE));
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.CREATE));
         return saved;
     }
 
@@ -69,7 +72,10 @@ public class CompanyAdminUseCase {
         auditLogger.companyAdminUpdated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        saved.getId(), "Company", saved.getSlug(), EntityTransactionAuditEnum.UPDATE));
+                        saved.getId(),
+                        "Company",
+                        saved.getSlug(),
+                        EntityTransactionAuditEnum.UPDATE));
         return saved;
     }
 
@@ -79,14 +85,21 @@ public class CompanyAdminUseCase {
         auditLogger.companyAdminDeleted(company.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
-                        company.getId(), "Company", company.getSlug(), EntityTransactionAuditEnum.DELETE));
+                        company.getId(),
+                        "Company",
+                        company.getSlug(),
+                        EntityTransactionAuditEnum.DELETE));
         companyPort.delete(company);
     }
 
     private Company require(UUID id) {
         return companyPort
                 .findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ProblemType.COMPANY_NOT_FOUND, "Company with id '" + id + "' not found."));
+                .orElseThrow(
+                        () ->
+                                new ResourceNotFoundException(
+                                        ProblemType.COMPANY_NOT_FOUND,
+                                        "Company with id '" + id + "' not found."));
     }
 
     private Company applyCreate(Company company, CreateCompanyCommand cmd) {
@@ -119,9 +132,11 @@ public class CompanyAdminUseCase {
         if (cmd.phone() != null) company.setPhone(cmd.phone());
         if (cmd.email() != null) company.setEmail(cmd.email());
         if (cmd.addressStreet() != null) company.setAddressStreet(cmd.addressStreet());
-        if (cmd.addressStreetNumber() != null) company.setAddressStreetNumber(cmd.addressStreetNumber());
+        if (cmd.addressStreetNumber() != null)
+            company.setAddressStreetNumber(cmd.addressStreetNumber());
         if (cmd.addressComplement() != null) company.setAddressComplement(cmd.addressComplement());
-        if (cmd.addressCityDistrict() != null) company.setAddressCityDistrict(cmd.addressCityDistrict());
+        if (cmd.addressCityDistrict() != null)
+            company.setAddressCityDistrict(cmd.addressCityDistrict());
         if (cmd.addressPostCode() != null) company.setAddressPostCode(cmd.addressPostCode());
         if (cmd.addressCity() != null) company.setAddressCity(cmd.addressCity());
         if (cmd.addressStateCode() != null) company.setAddressStateCode(cmd.addressStateCode());
