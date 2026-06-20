@@ -11,7 +11,8 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Component;
 
 import com.housi.backend.domain.model.Company;
-import com.housi.backend.domain.port.out.CompanyPort;
+import com.housi.backend.domain.port.out.CompanyCommandPort;
+import com.housi.backend.domain.port.out.CompanyQueryPort;
 import com.housi.backend.infrastructure.persistence.entity.CompanyEntity;
 import com.housi.backend.infrastructure.persistence.mapper.CompanyPersistenceMapper;
 import com.housi.backend.infrastructure.persistence.repository.CompanyJpaRepository;
@@ -20,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class CompanyAdapter implements CompanyPort {
+public class CompanyAdapter implements CompanyQueryPort, CompanyCommandPort {
 
     static final String CACHE_NAME = "company";
 

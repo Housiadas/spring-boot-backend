@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.housi.backend.domain.model.User;
 
-public interface UserPort {
+public interface UserQueryPort {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByIdWithRolesAndPermissions(UUID id);
@@ -18,8 +18,4 @@ public interface UserPort {
     long countAdminUsers();
 
     long count();
-
-    User save(User user);
-
-    void delete(User user);
 }

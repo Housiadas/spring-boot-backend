@@ -7,7 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.housi.backend.domain.model.Role;
-import com.housi.backend.domain.port.out.RolePort;
+import com.housi.backend.domain.port.out.RoleCommandPort;
+import com.housi.backend.domain.port.out.RoleQueryPort;
 import com.housi.backend.infrastructure.persistence.mapper.RolePersistenceMapper;
 import com.housi.backend.infrastructure.persistence.repository.RoleJpaRepository;
 
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class RoleAdapter implements RolePort {
+public class RoleAdapter implements RoleQueryPort, RoleCommandPort {
 
     private final RoleJpaRepository repository;
     private final RolePersistenceMapper mapper;

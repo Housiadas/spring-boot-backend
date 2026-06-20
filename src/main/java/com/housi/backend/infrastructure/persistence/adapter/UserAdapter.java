@@ -7,7 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Component;
 
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.UserPort;
+import com.housi.backend.domain.port.out.UserCommandPort;
+import com.housi.backend.domain.port.out.UserQueryPort;
 import com.housi.backend.infrastructure.persistence.entity.UserEntity;
 import com.housi.backend.infrastructure.persistence.mapper.UserPersistenceMapper;
 import com.housi.backend.infrastructure.persistence.repository.UserJpaRepository;
@@ -16,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class UserAdapter implements UserPort {
+public class UserAdapter implements UserQueryPort, UserCommandPort {
 
     private final UserJpaRepository repository;
     private final UserPersistenceMapper mapper;

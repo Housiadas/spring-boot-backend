@@ -8,22 +8,22 @@ import com.housi.backend.domain.enums.RoleEnum;
 import com.housi.backend.domain.exception.ConflictException;
 import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.UserPort;
+import com.housi.backend.domain.port.out.UserQueryPort;
 
 @Component
 public class LastAdminGuard {
 
-    private final UserPort userPort;
+    private final UserQueryPort userQueryPort;
 
-    public LastAdminGuard(UserPort userPort) {
-        this.userPort = userPort;
+    public LastAdminGuard(UserQueryPort userQueryPort) {
+        this.userQueryPort = userQueryPort;
     }
 
     public void assertCanDelete(User user) {
         boolean isAdmin =
                 user.getRoles().stream()
                         .anyMatch(r -> RoleEnum.ADMIN.getName().equals(r.getName()));
-        if (isAdmin && userPort.countAdminUsers() <= 1) {
+        if (isAdmin && userQueryPort.countAdminUsers() <= 1) {
             throw new ConflictException(
                     ProblemType.OPERATION_NOT_ALLOWED, "Cannot delete the last admin account.");
         }
@@ -34,7 +34,7 @@ public class LastAdminGuard {
                 user.getRoles().stream()
                         .anyMatch(r -> RoleEnum.ADMIN.getName().equals(r.getName()));
         boolean willBeAdmin = newRoleNames.contains(RoleEnum.ADMIN.getName());
-        if (wasAdmin && !willBeAdmin && userPort.countAdminUsers() <= 1) {
+        if (wasAdmin && !willBeAdmin && userQueryPort.countAdminUsers() <= 1) {
             throw new ConflictException(
                     ProblemType.OPERATION_NOT_ALLOWED,
                     "Cannot remove ADMIN role from the last admin user.");

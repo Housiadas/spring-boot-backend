@@ -7,7 +7,8 @@ import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Component;
 
 import com.housi.backend.domain.model.Permission;
-import com.housi.backend.domain.port.out.PermissionPort;
+import com.housi.backend.domain.port.out.PermissionCommandPort;
+import com.housi.backend.domain.port.out.PermissionQueryPort;
 import com.housi.backend.infrastructure.persistence.mapper.PermissionPersistenceMapper;
 import com.housi.backend.infrastructure.persistence.repository.PermissionJpaRepository;
 
@@ -15,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class PermissionAdapter implements PermissionPort {
+public class PermissionAdapter implements PermissionQueryPort, PermissionCommandPort {
 
     private final PermissionJpaRepository repository;
     private final PermissionPersistenceMapper mapper;

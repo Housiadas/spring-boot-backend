@@ -14,7 +14,8 @@ import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.exception.ResourceNotFoundException;
 import com.housi.backend.domain.model.Company;
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.CompanyPort;
+import com.housi.backend.domain.port.out.CompanyCommandPort;
+import com.housi.backend.domain.port.out.CompanyQueryPort;
 import com.housi.backend.infrastructure.audit.AuditLogger;
 import com.housi.backend.infrastructure.security.FindAuthenticatedUser;
 import com.housi.backend.usecase.company.command.CreateCompanyCommand;
@@ -23,19 +24,22 @@ import com.housi.backend.usecase.company.command.UpdateCompanyCommand;
 @Service
 public class UserCompanyUseCase {
 
-    private final CompanyPort companyPort;
+    private final CompanyQueryPort companyQueryPort;
+    private final CompanyCommandPort companyCommandPort;
     private final FindAuthenticatedUser findAuthenticatedUser;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
     private final CompanyConflictGuard conflictGuard;
 
     public UserCompanyUseCase(
-            CompanyPort companyPort,
+            CompanyQueryPort companyQueryPort,
+            CompanyCommandPort companyCommandPort,
             FindAuthenticatedUser findAuthenticatedUser,
             AuditLogger auditLogger,
             ApplicationEventPublisher eventPublisher,
             CompanyConflictGuard conflictGuard) {
-        this.companyPort = companyPort;
+        this.companyQueryPort = companyQueryPort;
+        this.companyCommandPort = companyCommandPort;
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
@@ -45,7 +49,7 @@ public class UserCompanyUseCase {
     @Transactional(readOnly = true)
     public List<Company> getMyCompanies() {
         User user = findAuthenticatedUser.getAuthenticatedUser();
-        return companyPort.findAllByCreatedBy(user.getEmail());
+        return companyQueryPort.findAllByCreatedBy(user.getEmail());
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +65,7 @@ public class UserCompanyUseCase {
         User user = findAuthenticatedUser.getAuthenticatedUser();
         conflictGuard.assertSlugAvailable(cmd.slug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId());
-        Company saved = companyPort.save(buildFromCreate(cmd));
+        Company saved = companyCommandPort.save(buildFromCreate(cmd));
         auditLogger.companyUserRegistered(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -79,7 +83,7 @@ public class UserCompanyUseCase {
         verifyOwnership(company, user);
         conflictGuard.assertSlugAvailable(cmd.slug(), company.getSlug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId(), company.getFederalTaxId());
-        Company saved = companyPort.save(applyUpdate(company, cmd));
+        Company saved = companyCommandPort.save(applyUpdate(company, cmd));
         auditLogger.companyUserUpdated(saved.getSlug(), user.getEmail());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -101,11 +105,11 @@ public class UserCompanyUseCase {
                         "Company",
                         company.getSlug(),
                         EntityTransactionAuditEnum.DELETE));
-        companyPort.delete(company);
+        companyCommandPort.delete(company);
     }
 
     private Company require(UUID id) {
-        return companyPort
+        return companyQueryPort
                 .findById(id)
                 .orElseThrow(
                         () ->

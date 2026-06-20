@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.housi.backend.domain.model.Role;
 
-public interface RolePort {
+public interface RoleQueryPort {
     Optional<Role> findByName(String name);
 
     boolean existsByName(String name);
@@ -16,8 +16,4 @@ public interface RolePort {
     Optional<Role> findWithPermissionsById(UUID id);
 
     long countUsersWithRole(UUID roleId);
-
-    Role save(Role role);
-
-    void delete(Role role);
 }

@@ -18,8 +18,9 @@ import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.exception.ResourceNotFoundException;
 import com.housi.backend.domain.model.Permission;
 import com.housi.backend.domain.model.Role;
-import com.housi.backend.domain.port.out.PermissionPort;
-import com.housi.backend.domain.port.out.RolePort;
+import com.housi.backend.domain.port.out.PermissionQueryPort;
+import com.housi.backend.domain.port.out.RoleCommandPort;
+import com.housi.backend.domain.port.out.RoleQueryPort;
 import com.housi.backend.infrastructure.audit.AuditLogger;
 
 @Service
@@ -28,25 +29,28 @@ public class RoleAdminUseCase {
     static final Set<String> PROTECTED_ROLES =
             Set.of(RoleEnum.ADMIN.getName(), RoleEnum.USER.getName());
 
-    private final RolePort rolePort;
-    private final PermissionPort permissionPort;
+    private final RoleQueryPort roleQueryPort;
+    private final RoleCommandPort roleCommandPort;
+    private final PermissionQueryPort permissionQueryPort;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
 
     public RoleAdminUseCase(
-            RolePort rolePort,
-            PermissionPort permissionPort,
+            RoleQueryPort roleQueryPort,
+            RoleCommandPort roleCommandPort,
+            PermissionQueryPort permissionQueryPort,
             AuditLogger auditLogger,
             ApplicationEventPublisher eventPublisher) {
-        this.rolePort = rolePort;
-        this.permissionPort = permissionPort;
+        this.roleQueryPort = roleQueryPort;
+        this.roleCommandPort = roleCommandPort;
+        this.permissionQueryPort = permissionQueryPort;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
     public List<Role> getAll() {
-        return rolePort.findAllWithPermissions();
+        return roleQueryPort.findAllWithPermissions();
     }
 
     @Transactional(readOnly = true)
@@ -56,7 +60,7 @@ public class RoleAdminUseCase {
 
     @Transactional
     public Role create(String name, String description, Set<String> permissions) {
-        if (rolePort.existsByName(name)) {
+        if (roleQueryPort.existsByName(name)) {
             throw new ConflictException(ProblemType.DUPLICATE_ROLE, "Role already exists: " + name);
         }
         Role role = Role.builder()
@@ -64,7 +68,7 @@ public class RoleAdminUseCase {
                 .description(description)
                 .permissions(permissions != null && !permissions.isEmpty() ? resolvePermissions(permissions) : new HashSet<>())
                 .build();
-        Role saved = rolePort.save(role);
+        Role saved = roleCommandPort.save(role);
         auditLogger.roleCreated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -80,7 +84,7 @@ public class RoleAdminUseCase {
                     ProblemType.OPERATION_NOT_ALLOWED,
                     "Cannot rename seeded role: " + role.getName());
         }
-        if (!role.getName().equals(name) && rolePort.existsByName(name)) {
+        if (!role.getName().equals(name) && roleQueryPort.existsByName(name)) {
             throw new ConflictException(ProblemType.DUPLICATE_ROLE, "Role already exists: " + name);
         }
         Role updated = role.toBuilder()
@@ -88,7 +92,7 @@ public class RoleAdminUseCase {
                 .description(description)
                 .permissions(permissions != null ? resolvePermissions(permissions) : role.getPermissions())
                 .build();
-        Role saved = rolePort.save(updated);
+        Role saved = roleCommandPort.save(updated);
         auditLogger.roleUpdated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -104,7 +108,7 @@ public class RoleAdminUseCase {
                     ProblemType.OPERATION_NOT_ALLOWED,
                     "Cannot delete seeded role: " + role.getName());
         }
-        if (rolePort.countUsersWithRole(id) > 0) {
+        if (roleQueryPort.countUsersWithRole(id) > 0) {
             throw new ConflictException(
                     ProblemType.OPERATION_NOT_ALLOWED, "Role is still assigned to users.");
         }
@@ -112,7 +116,7 @@ public class RoleAdminUseCase {
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
                         role.getId(), "Role", role.getName(), EntityTransactionAuditEnum.DELETE));
-        rolePort.delete(role);
+        roleCommandPort.delete(role);
     }
 
     @Transactional
@@ -121,7 +125,7 @@ public class RoleAdminUseCase {
         Role updated = role.toBuilder()
                 .permissions(permissionNames == null ? new HashSet<>() : resolvePermissions(permissionNames))
                 .build();
-        Role saved = rolePort.save(updated);
+        Role saved = roleCommandPort.save(updated);
         auditLogger.rolePermissionsChanged(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -134,7 +138,7 @@ public class RoleAdminUseCase {
     }
 
     private Role requireRole(UUID id) {
-        return rolePort.findWithPermissionsById(id)
+        return roleQueryPort.findWithPermissionsById(id)
                 .orElseThrow(
                         () ->
                                 new ResourceNotFoundException(
@@ -146,7 +150,7 @@ public class RoleAdminUseCase {
         Set<Permission> resolved = new HashSet<>();
         for (String name : names) {
             Permission p =
-                    permissionPort
+                    permissionQueryPort
                             .findByName(name)
                             .orElseThrow(
                                     () ->

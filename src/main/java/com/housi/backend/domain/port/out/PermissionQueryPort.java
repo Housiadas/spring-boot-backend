@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.housi.backend.domain.model.Permission;
 
-public interface PermissionPort {
+public interface PermissionQueryPort {
     Optional<Permission> findById(UUID id);
 
     Iterable<Permission> findAll();
@@ -15,8 +15,4 @@ public interface PermissionPort {
     boolean existsByName(String name);
 
     long countRolesWithPermission(UUID permissionId);
-
-    Permission save(Permission permission);
-
-    void delete(Permission permission);
 }

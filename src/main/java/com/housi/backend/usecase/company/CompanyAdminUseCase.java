@@ -12,7 +12,8 @@ import com.housi.backend.domain.event.EntityAuditEvent;
 import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.exception.ResourceNotFoundException;
 import com.housi.backend.domain.model.Company;
-import com.housi.backend.domain.port.out.CompanyPort;
+import com.housi.backend.domain.port.out.CompanyCommandPort;
+import com.housi.backend.domain.port.out.CompanyQueryPort;
 import com.housi.backend.infrastructure.audit.AuditLogger;
 import com.housi.backend.usecase.company.command.CreateCompanyCommand;
 import com.housi.backend.usecase.company.command.UpdateCompanyCommand;
@@ -20,17 +21,20 @@ import com.housi.backend.usecase.company.command.UpdateCompanyCommand;
 @Service
 public class CompanyAdminUseCase {
 
-    private final CompanyPort companyPort;
+    private final CompanyQueryPort companyQueryPort;
+    private final CompanyCommandPort companyCommandPort;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
     private final CompanyConflictGuard conflictGuard;
 
     public CompanyAdminUseCase(
-            CompanyPort companyPort,
+            CompanyQueryPort companyQueryPort,
+            CompanyCommandPort companyCommandPort,
             AuditLogger auditLogger,
             ApplicationEventPublisher eventPublisher,
             CompanyConflictGuard conflictGuard) {
-        this.companyPort = companyPort;
+        this.companyQueryPort = companyQueryPort;
+        this.companyCommandPort = companyCommandPort;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
         this.conflictGuard = conflictGuard;
@@ -38,7 +42,7 @@ public class CompanyAdminUseCase {
 
     @Transactional(readOnly = true)
     public List<Company> getAll() {
-        return companyPort.findAll();
+        return companyQueryPort.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +54,7 @@ public class CompanyAdminUseCase {
     public Company create(CreateCompanyCommand cmd) {
         conflictGuard.assertSlugAvailable(cmd.slug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId());
-        Company saved = companyPort.save(buildFromCreate(cmd));
+        Company saved = companyCommandPort.save(buildFromCreate(cmd));
         auditLogger.companyAdminCreated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -66,7 +70,7 @@ public class CompanyAdminUseCase {
         Company company = require(id);
         conflictGuard.assertSlugAvailable(cmd.slug(), company.getSlug());
         conflictGuard.assertFederalTaxIdAvailable(cmd.federalTaxId(), company.getFederalTaxId());
-        Company saved = companyPort.save(applyUpdate(company, cmd));
+        Company saved = companyCommandPort.save(applyUpdate(company, cmd));
         auditLogger.companyAdminUpdated(saved.getSlug());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -87,11 +91,11 @@ public class CompanyAdminUseCase {
                         "Company",
                         company.getSlug(),
                         EntityTransactionAuditEnum.DELETE));
-        companyPort.delete(company);
+        companyCommandPort.delete(company);
     }
 
     private Company require(UUID id) {
-        return companyPort
+        return companyQueryPort
                 .findById(id)
                 .orElseThrow(
                         () ->

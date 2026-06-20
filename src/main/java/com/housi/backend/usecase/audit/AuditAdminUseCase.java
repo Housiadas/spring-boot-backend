@@ -6,19 +6,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.housi.backend.domain.model.Audit;
-import com.housi.backend.domain.port.out.AuditPort;
+import com.housi.backend.domain.port.out.AuditQueryPort;
 
 @Service
 @Transactional(readOnly = true)
 public class AuditAdminUseCase {
 
-    private final AuditPort auditPort;
+    private final AuditQueryPort auditQueryPort;
 
-    public AuditAdminUseCase(AuditPort auditPort) {
-        this.auditPort = auditPort;
+    public AuditAdminUseCase(AuditQueryPort auditQueryPort) {
+        this.auditQueryPort = auditQueryPort;
     }
 
     public Page<Audit> getAll(Pageable pageable) {
-        return auditPort.findAll(pageable);
+        return auditQueryPort.findAll(pageable);
     }
 }

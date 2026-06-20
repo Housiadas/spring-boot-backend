@@ -3,21 +3,21 @@ package com.housi.backend.usecase.user;
 import org.springframework.stereotype.Service;
 
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.UserPort;
+import com.housi.backend.domain.port.out.UserCommandPort;
 import com.housi.backend.infrastructure.security.FindAuthenticatedUser;
 
 @Service
 public class DeleteUserUseCase {
 
-    private final UserPort userPort;
+    private final UserCommandPort userCommandPort;
     private final FindAuthenticatedUser findAuthenticatedUser;
     private final LastAdminGuard lastAdminGuard;
 
     public DeleteUserUseCase(
-            UserPort userPort,
+            UserCommandPort userCommandPort,
             FindAuthenticatedUser findAuthenticatedUser,
             LastAdminGuard lastAdminGuard) {
-        this.userPort = userPort;
+        this.userCommandPort = userCommandPort;
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.lastAdminGuard = lastAdminGuard;
     }
@@ -25,6 +25,6 @@ public class DeleteUserUseCase {
     public void deleteUser() {
         User user = findAuthenticatedUser.getAuthenticatedUser();
         lastAdminGuard.assertCanDelete(user);
-        userPort.delete(user);
+        userCommandPort.delete(user);
     }
 }

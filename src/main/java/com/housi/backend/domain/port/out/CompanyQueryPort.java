@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.housi.backend.domain.model.Company;
 
-public interface CompanyPort {
+public interface CompanyQueryPort {
     Optional<Company> findById(UUID id);
 
     List<Company> findAll();
@@ -16,8 +16,4 @@ public interface CompanyPort {
     boolean existsBySlug(String slug);
 
     boolean existsByFederalTaxId(String federalTaxId);
-
-    Company save(Company company);
-
-    void delete(Company company);
 }

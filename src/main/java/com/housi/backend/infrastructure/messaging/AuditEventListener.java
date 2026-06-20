@@ -9,17 +9,17 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import com.housi.backend.domain.event.EntityAuditEvent;
 import com.housi.backend.domain.model.Audit;
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.AuditPort;
+import com.housi.backend.domain.port.out.AuditCommandPort;
 import com.housi.backend.infrastructure.security.FindAuthenticatedUser;
 
 @Component
 public class AuditEventListener {
 
-    private final AuditPort auditPort;
+    private final AuditCommandPort auditCommandPort;
     private final FindAuthenticatedUser findAuthenticatedUser;
 
-    public AuditEventListener(AuditPort auditPort, FindAuthenticatedUser findAuthenticatedUser) {
-        this.auditPort = auditPort;
+    public AuditEventListener(AuditCommandPort auditCommandPort, FindAuthenticatedUser findAuthenticatedUser) {
+        this.auditCommandPort = auditCommandPort;
         this.findAuthenticatedUser = findAuthenticatedUser;
     }
 
@@ -27,7 +27,7 @@ public class AuditEventListener {
     public void onEntityAudit(EntityAuditEvent event) {
         User actor = findAuthenticatedUser.getAuthenticatedUser();
 
-        auditPort.save(
+        auditCommandPort.save(
                 Audit.builder()
                         .objId(event.entityId())
                         .objEntity(event.entityType())

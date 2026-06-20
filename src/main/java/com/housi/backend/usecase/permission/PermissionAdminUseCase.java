@@ -15,7 +15,8 @@ import com.housi.backend.domain.exception.ConflictException;
 import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.exception.ResourceNotFoundException;
 import com.housi.backend.domain.model.Permission;
-import com.housi.backend.domain.port.out.PermissionPort;
+import com.housi.backend.domain.port.out.PermissionCommandPort;
+import com.housi.backend.domain.port.out.PermissionQueryPort;
 import com.housi.backend.infrastructure.audit.AuditLogger;
 
 @Service
@@ -24,22 +25,25 @@ public class PermissionAdminUseCase {
     static final Set<String> PROTECTED_PERMISSIONS =
             Set.of("user:read", "user:write", "user:delete", "admin:read", "admin:write");
 
-    private final PermissionPort permissionPort;
+    private final PermissionQueryPort permissionQueryPort;
+    private final PermissionCommandPort permissionCommandPort;
     private final AuditLogger auditLogger;
     private final ApplicationEventPublisher eventPublisher;
 
     public PermissionAdminUseCase(
-            PermissionPort permissionPort,
+            PermissionQueryPort permissionQueryPort,
+            PermissionCommandPort permissionCommandPort,
             AuditLogger auditLogger,
             ApplicationEventPublisher eventPublisher) {
-        this.permissionPort = permissionPort;
+        this.permissionQueryPort = permissionQueryPort;
+        this.permissionCommandPort = permissionCommandPort;
         this.auditLogger = auditLogger;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
     public List<Permission> getAll() {
-        return StreamSupport.stream(permissionPort.findAll().spliterator(), false).toList();
+        return StreamSupport.stream(permissionQueryPort.findAll().spliterator(), false).toList();
     }
 
     @Transactional(readOnly = true)
@@ -49,11 +53,11 @@ public class PermissionAdminUseCase {
 
     @Transactional
     public Permission create(String name, String description) {
-        if (permissionPort.existsByName(name)) {
+        if (permissionQueryPort.existsByName(name)) {
             throw new ConflictException(
                     ProblemType.DUPLICATE_PERMISSION, "Permission already exists: " + name);
         }
-        Permission saved = permissionPort.save(Permission.builder().name(name).description(description).build());
+        Permission saved = permissionCommandPort.save(Permission.builder().name(name).description(description).build());
         auditLogger.permissionCreated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -73,11 +77,11 @@ public class PermissionAdminUseCase {
                     ProblemType.OPERATION_NOT_ALLOWED,
                     "Cannot rename seeded permission: " + permission.getName());
         }
-        if (!permission.getName().equals(name) && permissionPort.existsByName(name)) {
+        if (!permission.getName().equals(name) && permissionQueryPort.existsByName(name)) {
             throw new ConflictException(
                     ProblemType.DUPLICATE_PERMISSION, "Permission already exists: " + name);
         }
-        Permission saved = permissionPort.save(permission.toBuilder().name(name).description(description).build());
+        Permission saved = permissionCommandPort.save(permission.toBuilder().name(name).description(description).build());
         auditLogger.permissionUpdated(saved.getName());
         eventPublisher.publishEvent(
                 new EntityAuditEvent(
@@ -96,7 +100,7 @@ public class PermissionAdminUseCase {
                     ProblemType.OPERATION_NOT_ALLOWED,
                     "Cannot delete seeded permission: " + permission.getName());
         }
-        if (permissionPort.countRolesWithPermission(id) > 0) {
+        if (permissionQueryPort.countRolesWithPermission(id) > 0) {
             throw new ConflictException(
                     ProblemType.OPERATION_NOT_ALLOWED, "Permission is still attached to a role.");
         }
@@ -107,11 +111,11 @@ public class PermissionAdminUseCase {
                         "Permission",
                         permission.getName(),
                         EntityTransactionAuditEnum.DELETE));
-        permissionPort.delete(permission);
+        permissionCommandPort.delete(permission);
     }
 
     private Permission require(UUID id) {
-        return permissionPort
+        return permissionQueryPort
                 .findById(id)
                 .orElseThrow(
                         () ->

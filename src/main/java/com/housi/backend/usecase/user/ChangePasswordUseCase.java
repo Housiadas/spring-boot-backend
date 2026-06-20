@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.housi.backend.domain.exception.BadRequestException;
 import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.UserPort;
+import com.housi.backend.domain.port.out.UserCommandPort;
 import com.housi.backend.infrastructure.security.FindAuthenticatedUser;
 
 @Service
@@ -15,15 +15,15 @@ public class ChangePasswordUseCase {
 
     private final FindAuthenticatedUser findAuthenticatedUser;
     private final PasswordEncoder passwordEncoder;
-    private final UserPort userPort;
+    private final UserCommandPort userCommandPort;
 
     public ChangePasswordUseCase(
             FindAuthenticatedUser findAuthenticatedUser,
             PasswordEncoder passwordEncoder,
-            UserPort userPort) {
+            UserCommandPort userCommandPort) {
         this.findAuthenticatedUser = findAuthenticatedUser;
         this.passwordEncoder = passwordEncoder;
-        this.userPort = userPort;
+        this.userCommandPort = userCommandPort;
     }
 
     @Transactional
@@ -46,6 +46,6 @@ public class ChangePasswordUseCase {
                     "Old and new passwords must be different.");
         }
 
-        userPort.save(user.toBuilder().password(passwordEncoder.encode(newPassword)).build());
+        userCommandPort.save(user.toBuilder().password(passwordEncoder.encode(newPassword)).build());
     }
 }

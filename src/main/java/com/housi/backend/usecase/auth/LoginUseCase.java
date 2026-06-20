@@ -13,7 +13,7 @@ import com.housi.backend.domain.exception.NotAuthorizedException;
 import com.housi.backend.domain.exception.ProblemType;
 import com.housi.backend.domain.exception.TooManyRequestsException;
 import com.housi.backend.domain.model.User;
-import com.housi.backend.domain.port.out.UserPort;
+import com.housi.backend.domain.port.out.UserQueryPort;
 import com.housi.backend.infrastructure.audit.AuditLogger;
 import com.housi.backend.infrastructure.security.JwtService;
 import com.housi.backend.infrastructure.security.LoginAttemptService;
@@ -21,19 +21,19 @@ import com.housi.backend.infrastructure.security.LoginAttemptService;
 @Service
 public class LoginUseCase {
 
-    private final UserPort userPort;
+    private final UserQueryPort userQueryPort;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final LoginAttemptService loginAttemptService;
     private final AuditLogger auditLogger;
 
     public LoginUseCase(
-            UserPort userPort,
+            UserQueryPort userQueryPort,
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             LoginAttemptService loginAttemptService,
             AuditLogger auditLogger) {
-        this.userPort = userPort;
+        this.userQueryPort = userQueryPort;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.loginAttemptService = loginAttemptService;
@@ -64,7 +64,7 @@ public class LoginUseCase {
         loginAttemptService.reset(email);
 
         User user =
-                userPort.findByEmail(email)
+                userQueryPort.findByEmail(email)
                         .orElseThrow(
                                 () ->
                                         new NotAuthorizedException(

@@ -5,8 +5,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.housi.backend.domain.model.Audit;
 
-public interface AuditPort {
+public interface AuditQueryPort {
     Page<Audit> findAll(Pageable pageable);
-
-    Audit save(Audit audit);
 }
